@@ -7,13 +7,11 @@ app = FastAPI()
 
 @app.get("/")
 def read_root():
-    print(requests.file)
     return {"message": "Hi"}
 
 @app.post("/stream")
 async def stream():
     print('stream')
-    print('req', requests.file)
     return 'stream'
 
 @app.post("/post")
