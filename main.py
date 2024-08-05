@@ -17,6 +17,7 @@ async def stream():
 
 @app.post("/stream_start")
 async def stream_start():
+    print('stream start')
     url = 'https://hiring.external.guardio.dev/be/stream_start'
     payload = {
         "url": "https://outrageous-velvet-mai1-06e68ac1.koyeb.app/stream",
@@ -26,6 +27,7 @@ async def stream_start():
 
     try:
         response = requests.post(url, json=payload)
+            print('stream start successfully resonse ', resonse)
         return response
     except Exception as e:
         return {"error": str(e)}
