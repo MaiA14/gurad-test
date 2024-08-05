@@ -35,9 +35,9 @@ def read_root():
 
 @app.post("/stream")
 async def stream(request: Request):
-    signature = request.headers.get("X-Grd-Signature")
-    if not signature:
-        raise HTTPException(status_code=400, detail="Signature missing")
+    headers = request.headers
+    print('headers ', headers)
+
     body = await request.body()
 
     print('body ', body)
