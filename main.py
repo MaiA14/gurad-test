@@ -33,7 +33,7 @@ async def stream(pokemon: Pokemon, request: Request):
     headers = request.headers
     print(f"Headers: {headers}")
 
-    return {"message": "Stream endpoint", "pokemon": pokemon.dict(), "client_ip": client_ip}
+    return {"message": "Stream endpoint", "client_ip": client_ip}
     return 'stream'
 
 @app.post("/stream_start")
