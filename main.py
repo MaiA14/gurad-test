@@ -13,6 +13,7 @@ def read_root():
 @app.post("/stream")
 async def stream():
     print('stream')
+    print('req', requests.file)
     return 'stream'
 
 
