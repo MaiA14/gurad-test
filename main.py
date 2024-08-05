@@ -43,7 +43,6 @@ async def stream(request: Request):
     print('body ', body)
 
     dump = decode_protobuf_bytes_to_json(body)
-
     print('dump ', dump)
 
 @app.post("/stream_start")
