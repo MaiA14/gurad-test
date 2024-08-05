@@ -1,6 +1,7 @@
 from typing import Dict, Union
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+import requests  
 
 app = FastAPI()
 
@@ -11,17 +12,7 @@ def read_root():
 
 @app.post("/stream")
 async def stream():
-    headers = dict(request.headers)
-
-    body = await request.body()
-    body_str = body.decode('utf-8')  
-
-    response_content = {
-        "headers": headers,
-        "body": body_str
-    }
-
-    return JSONResponse(content=response_content)
+    return 'stream'
 
 
 @app.post("/stream_start")
@@ -35,10 +26,7 @@ async def stream_start():
 
     try:
         response = requests.post(url, json=payload)
-        return {
-            "status_code": response.status_code,
-            "response_text": response.text
-        }
+        return response
     except Exception as e:
         return {"error": str(e)}
 
