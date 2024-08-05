@@ -7,6 +7,7 @@ app = FastAPI()
 
 @app.get("/")
 def read_root():
+    print('main')
     return {"message": "Hi"}
 
 @app.post("/stream")
