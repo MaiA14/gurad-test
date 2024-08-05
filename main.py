@@ -1,9 +1,25 @@
 from typing import Dict, Union
-from fastapi import FastAPI
+from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 import requests  
+from dataclasses import dataclass
 
 app = FastAPI()
+
+@dataclass
+class Pokemon:
+    number: int
+    name: str
+    type_one: str
+    type_two: str
+    total: int
+    hit_points: int
+    attack: int
+    defense: int
+    special_attack : int
+    speed : int
+    generation : int
+    legendary : bool
 
 @app.get("/")
 def read_root():
@@ -11,22 +27,10 @@ def read_root():
     return {"message": "Hi"}
 
 @app.post("/stream")
-async def stream():
-    print('stream')
+async def stream(pokemon: Pokemon, request: Request):
+    print(pokemon)
+    print(request.client.host)
     return 'stream'
-
-@app.post("/post")
-def create_post(payload: dict):
-    EXTERNAL_API_URL = 'https://jsonplaceholder.typicode.com/posts'
-    try:
-        response = requests.post(EXTERNAL_API_URL, json=payload)
-        if response.status_code == 201:
-            return response.json()
-        else:
-            raise HTTPException(status_code=response.status_code, detail="Request to external API failed")
-    except requests.RequestException as exc:
-        raise HTTPException(status_code=500, detail=f"An error occurred: {exc}")
-
 
 @app.post("/stream_start")
 async def stream_start():
