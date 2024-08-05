@@ -9,7 +9,6 @@ app = FastAPI()
 def read_root():
     return {"message": "Hi"}
 
-
 @app.post("/stream")
 async def stream(request):
     print('request', request.client)
@@ -30,4 +29,3 @@ async def stream_start():
         return response
     except Exception as e:
         return {"error": str(e)}
-
