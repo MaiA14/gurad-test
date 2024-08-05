@@ -10,7 +10,8 @@ def read_root():
     return {"message": "Hi"}
 
 @app.post("/stream")
-async def stream(request):
+async def stream():
+    print('stream')
     return 'stream'
 
 
