@@ -7,6 +7,7 @@ app = FastAPI()
 
 @app.get("/")
 def read_root():
+    print(requests.file)
     return {"message": "Hi"}
 
 @app.post("/stream")
@@ -27,6 +28,5 @@ async def stream_start():
 
     try:
         response = requests.post(url, json=payload)
-        return response
     except Exception as e:
         return {"error": str(e)}
