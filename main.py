@@ -2,12 +2,11 @@ from typing import Dict, Union
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 import requests  
-from dataclasses import dataclass
+from pydantic import BaseModel
 
 app = FastAPI()
 
-@dataclass
-class Pokemon:
+class Pokemon(BaseModel):
     number: int
     name: str
     type_one: str
@@ -16,10 +15,10 @@ class Pokemon:
     hit_points: int
     attack: int
     defense: int
-    special_attack : int
-    speed : int
-    generation : int
-    legendary : bool
+    special_attack: int
+    speed: int
+    generation: int
+    legendary: bool
 
 @app.get("/")
 def read_root():
@@ -29,7 +28,12 @@ def read_root():
 @app.post("/stream")
 async def stream(pokemon: Pokemon, request: Request):
     print(pokemon)
-    print(request.client.host)
+    client_ip = request.client.host
+    print(f"Client IP: {client_ip}")
+    headers = request.headers
+    print(f"Headers: {headers}")
+
+    return {"message": "Stream endpoint", "pokemon": pokemon.dict(), "client_ip": client_ip}
     return 'stream'
 
 @app.post("/stream_start")
