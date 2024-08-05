@@ -40,12 +40,11 @@ async def stream(request: Request):
         raise HTTPException(status_code=400, detail="Signature missing")
     body = await request.body()
 
-
     print('body ', body)
 
     dump = decode_protobuf_bytes_to_json(body)
-    print('dump ', dump)
 
+    print('dump ', dump)
 
 @app.post("/stream_start")
 async def stream_start():
