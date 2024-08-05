@@ -27,7 +27,6 @@ async def stream_start():
 
     try:
         response = requests.post(url, json=payload)
-            print('stream start successfully resonse ', resonse)
         return response
     except Exception as e:
         return {"error": str(e)}
