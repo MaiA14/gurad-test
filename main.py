@@ -1,11 +1,22 @@
 from typing import Dict, Union
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
+from Crypto.Hash import HMAC, SHA256
 import requests  
 import pokedex_pb2
 import json
+import base64
+import hmac
+import hashlib
+import base64
 
 app = FastAPI()
+
+def get_secret(key):
+    print('get secret ', key)
+    enc_secret = base64.b64encode(key.encode('utf-8')).decode('utf-8')
+    return enc_secret
+
 
 def decode_protobuf_bytes_to_json(protobuf_data: bytes) -> str:
     pokemon = pokedex_pb2.Pokemon()
@@ -50,11 +61,16 @@ async def stream(request: Request):
 @app.post("/stream_start")
 async def stream_start():
     print('stream start')
+
     url = 'https://hiring.external.guardio.dev/be/stream_start'
+    key = 'test@guard.io'
+    enc_secret = get_secret(key)
+    
+    print(enc_secret)
     payload = {
         "url": "https://outrageous-velvet-mai1-06e68ac1.koyeb.app/stream",
         "email": "test@guard.io",
-        "enc_secret": "dGVzdEBndWFyZC5pbyA="
+        "enc_secret": enc_secret
     }
 
     try:
