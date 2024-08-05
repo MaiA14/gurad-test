@@ -6,8 +6,6 @@ from pydantic import BaseModel
 
 app = FastAPI()
 
-#
-
 class Pokemon(BaseModel):
     number: int
     name: str
