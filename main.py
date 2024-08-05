@@ -16,7 +16,6 @@ async def stream():
     print('req', requests.file)
     return 'stream'
 
-
 @app.post("/post")
 def create_post(payload: dict):
     EXTERNAL_API_URL = 'https://jsonplaceholder.typicode.com/posts'
