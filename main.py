@@ -2,23 +2,9 @@ from typing import Dict, Union
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 import requests  
-from pydantic import BaseModel
+import pokedex
 
 app = FastAPI()
-
-class Pokemon(BaseModel):
-    number: int
-    name: str
-    type_one: str
-    type_two: str
-    total: int
-    hit_points: int
-    attack: int
-    defense: int
-    special_attack: int
-    speed: int
-    generation: int
-    legendary: bool
 
 @app.get("/")
 def read_root():
@@ -26,15 +12,18 @@ def read_root():
     return {"message": "Hi"}
 
 @app.post("/stream")
-async def stream(pokemon: Pokemon, request: Request):
-    print(pokemon)
-    client_ip = request.client.host
-    print(f"Client IP: {client_ip}")
-    headers = request.headers
-    print(f"Headers: {headers}")
+async def stream(request: Request):
+    signature = request.headers.get("X-Grd-Signature")
+    if not signature:
+        raise HTTPException(status_code=400, detail="Signature missing")
+    body = await request.body()
 
-    return {"message": "Stream endpoint", "client_ip": client_ip}
-    return 'stream'
+    print('body ', body)
+
+    pokemon = pokedex.Pokemon()
+    pokemon.ParseFromString(body)
+
+    print('pokemon ', pokemon)
 
 @app.post("/stream_start")
 async def stream_start():

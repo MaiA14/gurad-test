@@ -9,6 +9,7 @@ fastapi==0.112.0
 h11==0.14.0
 httptools==0.6.1
 idna==3.7
+pokedex.py==2.0.0
 pydantic==2.8.2
 pydantic_core==2.20.1
 python-dotenv==1.0.1
