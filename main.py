@@ -2,7 +2,6 @@ from typing import Dict, Union
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 import requests  
-import pokedex
 
 app = FastAPI()
 
@@ -20,10 +19,6 @@ async def stream(request: Request):
 
     print('body ', body)
 
-    pokemon = pokedex.Pokemon()
-    pokemon.ParseFromString(body)
-
-    print('pokemon ', pokemon)
 
 @app.post("/stream_start")
 async def stream_start():
