@@ -3,6 +3,7 @@ from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 import requests  
 import pokedex_pb2
+import json
 
 app = FastAPI()
 
