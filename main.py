@@ -11,7 +11,8 @@ def read_root():
 
 
 @app.post("/stream")
-async def stream():
+async def stream(request):
+    print('request', request.client)
     return 'stream'
 
 
