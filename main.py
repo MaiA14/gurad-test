@@ -16,6 +16,19 @@ async def stream():
     return 'stream'
 
 
+@app.post("/post")
+def create_post(payload: dict):
+    EXTERNAL_API_URL = 'https://jsonplaceholder.typicode.com/posts'
+    try:
+        response = requests.post(EXTERNAL_API_URL, json=payload)
+        if response.status_code == 201:
+            return response.json()
+        else:
+            raise HTTPException(status_code=response.status_code, detail="Request to external API failed")
+    except requests.RequestException as exc:
+        raise HTTPException(status_code=500, detail=f"An error occurred: {exc}")
+
+
 @app.post("/stream_start")
 async def stream_start():
     print('stream start')
