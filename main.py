@@ -24,7 +24,8 @@ class StreamHandler:
         
         email = Config.get_stream_config_value("email")
         key_base64 = Utils.get_secret(email)
-        key = base64.b64decode(key_base64)     
+        key = base64.b64decode(key_base64)
+        
         hmaci = HMAC.new(key, body, digestmod=SHA256).hexdigest()
 
         print('hmaci ', hmaci)

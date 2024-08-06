@@ -3,17 +3,17 @@ syntax = "proto3";
 package pokedex;
 
 message Pokemon {
-    uint64 number = 1;
-    string name = 2;
-    string type_one = 3;
-    string type_two = 4;
-    uint64 total = 5;
-    uint64 hit_points = 6;
-    uint64 attack = 7;
-    uint64 defense = 8;
-    uint64 special_attack = 9;
-    uint64 special_defense = 10;
-    uint64 speed = 11;
-    uint64 generation = 12;
-    bool legendary = 13;
+    optional uint64 number = 1;
+    optional string name = 2;
+    optional string type_one = 3;
+    optional string type_two = 4;
+    optional uint64 total = 5;
+    optional uint64 hit_points = 6;
+    optional uint64 attack = 7;
+    optional uint64 defense = 8;
+    optional uint64 special_attack = 9;
+    optional uint64 special_defense = 10;
+    optional uint64 speed = 11;
+    optional uint64 generation = 12;
+    optional bool legendary = 13;
 }
