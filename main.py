@@ -26,16 +26,21 @@ class StreamHandler:
     @staticmethod
     @app.post("/stream_start")
     async def stream_start():
-        enc_secret = Utils.get_secret(Config.SECRET_KEY)
-        print('enc_secret ', enc_secret)
+        secret_key = Config.get_stream_config_value("secret_key")
+        stream_url = Config.get_stream_config_value("url")
+        email = Config.get_stream_config_value("email")
+        stream_start_url = Config.get_stream_config_value("stream_start_url")
+        
+        enc_secret = Utils.get_secret(secret_key)
+        print('enc_secret ', enc_secret, stream_url, email)
         payload = {
-            "url": Config.STREAM_URL,
-            "email": Config.EMAIL,
+            "url": stream_url,
+            "email": email,
             "enc_secret": enc_secret
         }
-
+        
         try:
-            response = requests.post(Config.STREAM_START_URL, json=payload)
+            response = requests.post(stream_start_url, json=payload)
             return {"status_code": response.status_code, "response": response.json()}
         except Exception as e:
             return {"error": str(e)}

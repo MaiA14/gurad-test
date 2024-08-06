@@ -1,0 +1,6 @@
+{
+    "secret_key": "test@guard.io",
+    "url": "https://outrageous-velvet-mai1-06e68ac1.koyeb.app/stream",
+    "email": "test@guard.io",
+    "stream_start_url": "https://hiring.external.guardio.dev/be/stream_start"
+}
