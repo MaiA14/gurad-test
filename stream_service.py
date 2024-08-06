@@ -89,6 +89,7 @@ class StreamService:
                 raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
 
     async def stream_start(self):
+        print('stream start')
         stream_url = Config.get_stream_config_value("url")
         email = Config.get_stream_config_value("email")
         stream_start_url = Config.get_stream_config_value("stream_start_url")
@@ -101,6 +102,7 @@ class StreamService:
         }
         
         try:
+            print('try stream start')
             response = requests.post(stream_start_url, json=payload)
             return {"status_code": response.status_code, "response": response.json()}
         except Exception as e:
