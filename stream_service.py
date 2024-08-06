@@ -38,6 +38,7 @@ class StreamService:
         self.thread.start()
         # await self.stream_start()
         yield
+        print('shutting down')
         self.isAlive = False
         self.thread.join()
         self.pokemons_reqs_queue.join()
@@ -120,6 +121,3 @@ class StreamService:
         else:
             raise ValueError("Invalid action. Must be 'start' or 'stop'.")
         print('isAlive ', self.isAlive)
-
-    
-
