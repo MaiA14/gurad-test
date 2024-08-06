@@ -3,6 +3,7 @@ from fastapi.responses import JSONResponse
 import requests
 from config import Config
 from utils import Utils
+from Crypto.Hash import HMAC, SHA256
 
 app = FastAPI()
 
@@ -22,7 +23,7 @@ class StreamHandler:
         
         email = Config.get_stream_config_value("email")
         key = Utils.get_secret(email)
-        hmaci = hmac.new(key, body, digestmod=SHA256).hexdigest()
+        hmaci = HMAC.new(key, body, digestmod=SHA256).hexdigest()
 
         print('hmaci ', hmaci)
 
@@ -36,7 +37,6 @@ class StreamHandler:
         stream_url = Config.get_stream_config_value("url")
         email = Config.get_stream_config_value("email")
         stream_start_url = Config.get_stream_config_value("stream_start_url")
-        
         enc_secret = Utils.get_secret(email)
         print('enc_secret ', enc_secret, stream_url, email)
         payload = {
