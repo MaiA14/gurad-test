@@ -1,4 +1,4 @@
-from fastapi import FastAPI, Request
+from fastapi import FastAPI, Request, HTTPException
 from fastapi.responses import JSONResponse
 import requests
 from config import Config
@@ -21,12 +21,20 @@ class StreamHandler:
         print('headers ', headers)
         body = await request.body()
         print('body ', body)
+
+        signature = headers.get('x-grd-signature')
+        
+        if signature is None:
+            raise HTTPException(status_code=400, detail='Missing x-grd-signature header')
         
         email = Config.get_stream_config_value("email")
         key_base64 = Utils.get_secret(email)
         key = base64.b64decode(key_base64)
         
         hmaci = HMAC.new(key, body, digestmod=SHA256).hexdigest()
+        
+        if signature != hmaci:
+            raise HTTPException(status_code=403, detail='Invalid signature')
 
         print('hmaci ', hmaci)
 
