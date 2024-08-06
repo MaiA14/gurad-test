@@ -37,7 +37,7 @@ class StreamService:
         self.pokemons_queue = queue.Queue()
         self.isAlive = True
         self.thread.start()
-        await self.stream_start()
+        self.stream_start()
         yield
         print('shutting down')
         self.isAlive = False
@@ -88,7 +88,7 @@ class StreamService:
             else:
                 raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
 
-    async def stream_start(self):
+    def stream_start(self):
         print('stream start')
         stream_url = Config.get_stream_config_value("url")
         email = Config.get_stream_config_value("email")
@@ -103,7 +103,7 @@ class StreamService:
         
         try:
             print('try stream start')
-            response = await requests.post(stream_start_url, json=payload)
+            response = requests.post(stream_start_url, json=payload)
             return {"status_code": response.status_code, "response": response.json()}
         except Exception as e:
             return {"error": str(e)}
