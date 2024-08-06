@@ -1,11 +1,25 @@
 import base64
 import json
 import pokedex_pb2
+from typing import Dict, Any
 
 class Utils:
     @staticmethod
     def get_secret(key: str) -> str:
         return base64.b64encode(key.encode('utf-8')).decode('utf-8')
+
+    @staticmethod
+    def process_pokemon(data: str) -> Dict[str, Any]:
+        try:
+            pokemon = json.loads(data)
+            if isinstance(pokemon.get('legendary'), str):
+                if pokemon['legendary'].lower() == 'false':
+                    pokemon['legendary'] = False
+                elif pokemon['legendary'].lower() == 'true':
+                    pokemon['legendary'] = True
+            return pokemon
+        except json.JSONDecodeError as e:
+            return {"error": str(e)}
 
     @staticmethod
     def decode_protobuf_bytes_to_json(protobuf_data: bytes) -> str:

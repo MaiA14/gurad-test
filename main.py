@@ -39,6 +39,7 @@ class StreamHandler:
         print('hmaci ', hmaci)
 
         decoded_pokemon = Utils.decode_protobuf_bytes_to_json(body)
+        decoded_pokemon = Utils.process_pokemon(decoded_pokemon)
         print('decoded ', decoded_pokemon)
         return JSONResponse(content={"decoded_pokemon": decoded_pokemon})
 
