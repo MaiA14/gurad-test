@@ -33,11 +33,11 @@ class StreamService:
 
     @asynccontextmanager
     async def lifespan(self, app: FastAPI) -> AsyncIterator[None]:
-        print('starter')
+        print('lifespan start')
         self.pokemons_queue = queue.Queue()
         self.isAlive = True
         self.thread.start()
-        await self.stream_start()
+        self.stream_start()
         yield
         print('shutting down')
         self.isAlive = False
