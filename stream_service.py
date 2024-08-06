@@ -52,7 +52,7 @@ class StreamService:
         if self.pokemons_queue is not None:
             self.pokemons_queue.put(data)
 
-    async def stream(self, request: Request):
+    def stream(self, request: Request):
         try:
             headers = request.headers
             print('headers ', headers)
