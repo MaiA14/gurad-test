@@ -20,6 +20,7 @@ class StreamHandler:
         body = await request.body()
         print('body ', body)
         
+        email = Config.get_stream_config_value("email")
         key = Utils.get_secret(email)
         hmac = hmac.new(key, body, digestmod=SHA256).hexdigest()
 
