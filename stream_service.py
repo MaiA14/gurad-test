@@ -103,7 +103,7 @@ class StreamService:
         
         try:
             print('try stream start')
-            response = requests.post(stream_start_url, json=payload)
+            response = await requests.post(stream_start_url, json=payload)
             return {"status_code": response.status_code, "response": response.json()}
         except Exception as e:
             return {"error": str(e)}
