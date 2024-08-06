@@ -22,9 +22,9 @@ class StreamHandler:
         
         email = Config.get_stream_config_value("email")
         key = Utils.get_secret(email)
-        hmac = hmac.new(key, body, digestmod=SHA256).hexdigest()
+        hmaci = hmac.new(key, body, digestmod=SHA256).hexdigest()
 
-        print('hmac ', hmac)
+        print('hmaci ', hmaci)
 
         decoded_pokemon = Utils.decode_protobuf_bytes_to_json(body)
         print('decoded ', decoded_pokemon)
