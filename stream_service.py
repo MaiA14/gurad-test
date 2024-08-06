@@ -37,7 +37,7 @@ class StreamService:
         self.pokemons_queue = queue.Queue()
         self.isAlive = True
         self.thread.start()
-        self.stream_start()
+        await self.stream_start()
         yield
         print('shutting down')
         self.isAlive = False
