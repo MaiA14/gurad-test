@@ -46,7 +46,8 @@ class StreamService:
         print('check_match not implemented yet')
 
     def publish_data_to_queue(self,data):
-         self.pokemons_queue.put(data)
+        if self.pokemons_queue is not None:
+            self.pokemons_queue.put(data)
 
     async def stream(self, request: Request):
         try:
@@ -74,8 +75,7 @@ class StreamService:
             decoded_pokemon = Utils.decode_protobuf_bytes_to_json(body)
             processed_pokemon = Utils.process_pokemon(decoded_pokemon)
             print('decoded ', processed_pokemon)
-            if self.pokemons_queue is not None:
-                self.publish_data_to_queue(processed_pokemon)
+            self.publish_data_to_queue(processed_pokemon)
             
             return JSONResponse(content={"processed_pokemon": processed_pokemon})
 
