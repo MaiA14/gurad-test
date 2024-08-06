@@ -56,7 +56,7 @@ class StreamService:
         try:
             headers = request.headers
             print('headers ', headers)
-            body = await request.body()
+            body = request.body()
             print('body ', body)
 
             signature = headers.get('x-grd-signature')
