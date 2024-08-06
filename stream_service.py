@@ -40,6 +40,7 @@ class StreamService:
         self.isAlive = False
         self.thread.join()
         self.pokemons_reqs_queue.join()
+         self.pokemons_queue = None
 
     def check_match(self, req):
         print('check_match not implemented yet')
@@ -73,7 +74,8 @@ class StreamService:
             decoded_pokemon = Utils.decode_protobuf_bytes_to_json(body)
             processed_pokemon = Utils.process_pokemon(decoded_pokemon)
             print('decoded ', processed_pokemon)
-            self.publish_data_to_queue(processed_pokemon)
+            if self.pokemons_queue is not None:
+                self.publish_data_to_queue(processed_pokemon)
             
             return JSONResponse(content={"processed_pokemon": processed_pokemon})
 
