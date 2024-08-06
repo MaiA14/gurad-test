@@ -19,6 +19,12 @@ class StreamHandler:
         print('headers ', headers)
         body = await request.body()
         print('body ', body)
+        
+        key = Utils.get_secret(email)
+        hmac = hmac.new(key, body, digestmod=SHA256).hexdigest()
+
+        print('hmac ', hmac)
+
         decoded_pokemon = Utils.decode_protobuf_bytes_to_json(body)
         print('decoded ', decoded_pokemon)
         return JSONResponse(content={"decoded_pokemon": decoded_pokemon})
@@ -26,12 +32,11 @@ class StreamHandler:
     @staticmethod
     @app.post("/stream_start")
     async def stream_start():
-        secret_key = Config.get_stream_config_value("secret_key")
         stream_url = Config.get_stream_config_value("url")
         email = Config.get_stream_config_value("email")
         stream_start_url = Config.get_stream_config_value("stream_start_url")
         
-        enc_secret = Utils.get_secret(secret_key)
+        enc_secret = Utils.get_secret(email)
         print('enc_secret ', enc_secret, stream_url, email)
         payload = {
             "url": stream_url,
