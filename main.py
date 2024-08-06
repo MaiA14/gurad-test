@@ -16,14 +16,18 @@ class StreamHandler:
     @app.post("/stream")
     async def stream(request: Request):
         headers = request.headers
+        print('headers ', headers)
         body = await request.body()
-        decoded_pokemon = Utils.decode_protobuf_bytes_to_json(body)
+        print('body ', body)
+        decoded_pokemon = Utils.decode_protobuf_bytes_to_json(body
+        print('decoded ', decoded_pokemon)
         return JSONResponse(content={"decoded_pokemon": decoded_pokemon})
 
     @staticmethod
     @app.post("/stream_start")
     async def stream_start():
         enc_secret = Utils.get_secret(Config.SECRET_KEY)
+        print('enc_secret ', enc_secret)
         payload = {
             "url": Config.STREAM_URL,
             "email": Config.EMAIL,
