@@ -40,8 +40,6 @@ async def stream(request: Request):
     decoded_pokemon = Utils.decode_protobuf_bytes_to_json(body)
     print('decoded ', decoded_pokemon)
 
-    return JSONResponse(content={"decoded_pokemon": decoded_pokemon})
-
     @staticmethod
     @app.post("/stream_start")
     async def stream_start():
