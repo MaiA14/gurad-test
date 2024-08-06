@@ -18,7 +18,7 @@ class StreamService:
         self.isAlive = False
 
     def worker(self):
-        while self.isAlive:
+        while self.isAlive and self.pokemons_queue is not None:
             try:
                 req = self.pokemons_queue.get(timeout=1)
                 print(f'Working on {req}')
@@ -33,9 +33,10 @@ class StreamService:
 
     async def lifespan(self, app: FastAPI) -> AsyncIterator[None]:
         print('starter')
+        self.pokemons_queue = queue.Queue()
         self.isAlive = True
         self.thread.start()
-        await self.stream_start()
+        # await self.stream_start()
         yield
         self.isAlive = False
         self.thread.join()
