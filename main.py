@@ -19,7 +19,7 @@ class StreamHandler:
         print('headers ', headers)
         body = await request.body()
         print('body ', body)
-        decoded_pokemon = Utils.decode_protobuf_bytes_to_json(body
+        decoded_pokemon = Utils.decode_protobuf_bytes_to_json(body)
         print('decoded ', decoded_pokemon)
         return JSONResponse(content={"decoded_pokemon": decoded_pokemon})
 
