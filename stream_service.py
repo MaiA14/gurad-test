@@ -40,7 +40,7 @@ class StreamService:
         self.isAlive = False
         self.thread.join()
         self.pokemons_reqs_queue.join()
-         self.pokemons_queue = None
+        self.pokemons_queue = None
 
     def check_match(self, req):
         print('check_match not implemented yet')
