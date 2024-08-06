@@ -33,11 +33,11 @@ class StreamService:
 
     @asynccontextmanager
     async def lifespan(self, app: FastAPI) -> AsyncIterator[None]:
-        print('lifespan start')
+        print('starter')
         self.pokemons_queue = queue.Queue()
         self.isAlive = True
         self.thread.start()
-        self.stream_start()
+        await self.stream_start()
         yield
         print('shutting down')
         self.isAlive = False
@@ -52,11 +52,11 @@ class StreamService:
         if self.pokemons_queue is not None:
             self.pokemons_queue.put(data)
 
-    def stream(self, request: Request):
+    async def stream(self, request: Request):
         try:
             headers = request.headers
             print('headers ', headers)
-            body = request.body()
+            body = await request.body()
             print('body ', body)
 
             signature = headers.get('x-grd-signature')
@@ -88,7 +88,7 @@ class StreamService:
             else:
                 raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
 
-    def stream_start(self):
+    async def stream_start(self):
         print('stream start')
         stream_url = Config.get_stream_config_value("url")
         email = Config.get_stream_config_value("email")
@@ -109,7 +109,7 @@ class StreamService:
             return {"error": str(e)}
 
 
-    def control_worker(self, action: str):
+    async def control_worker(self, action: str):
         if action == "start":
             if not self.isAlive:  
                 self.isAlive = True
