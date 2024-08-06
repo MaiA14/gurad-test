@@ -17,31 +17,39 @@ class StreamHandler:
     @staticmethod
     @app.post("/stream")
     async def stream(request: Request):
-        headers = request.headers
-        print('headers ', headers)
-        body = await request.body()
-        print('body ', body)
+        try:
+            headers = request.headers
+            print('headers ', headers)
+            body = await request.body()
+            print('body ', body)
 
-        signature = headers.get('x-grd-signature')
-        
-        if signature is None:
-            raise HTTPException(status_code=400, detail='Missing x-grd-signature header')
-        
-        email = Config.get_stream_config_value("email")
-        key_base64 = Utils.get_secret(email)
-        key = base64.b64decode(key_base64)
-        
-        hmaci = HMAC.new(key, body, digestmod=SHA256).hexdigest()
-        
-        if signature != hmaci:
-            raise HTTPException(status_code=403, detail='Invalid signature')
+            signature = headers.get('x-grd-signature')
 
-        print('hmaci ', hmaci)
+            if signature is None:
+                raise HTTPException(status_code=400, detail='Missing x-grd-signature header')
 
-        decoded_pokemon = Utils.decode_protobuf_bytes_to_json(body)
-        decoded_pokemon = Utils.process_pokemon(decoded_pokemon)
-        print('decoded ', decoded_pokemon)
-        return JSONResponse(content={"decoded_pokemon": decoded_pokemon})
+            email = Config.get_stream_config_value("email")
+            key_base64 = Utils.get_secret(email)
+            key = base64.b64decode(key_base64)
+
+            hmaci = HMAC.new(key, body, digestmod=SHA256).hexdigest()
+
+            if signature != hmaci:
+                raise HTTPException(status_code=403, detail='Invalid signature')
+
+            print('hmaci ', hmaci)
+
+            decoded_pokemon = Utils.decode_protobuf_bytes_to_json(body)
+            decoded_pokemon = Utils.process_pokemon(decoded_pokemon)
+            print('decoded ', decoded_pokemon)
+            
+            return JSONResponse(content={"decoded_pokemon": decoded_pokemon})
+
+        except Exception as e:
+            if isinstance(e, HTTPException):
+                raise e
+            else:
+                raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
 
     @staticmethod
     @app.post("/stream_start")
