@@ -84,8 +84,10 @@ class StreamService:
 
         except Exception as e:
             if isinstance(e, HTTPException):
+                print(f'HTTPException occurred: Status Code: {e.status_code}, Detail: {e.detail}')
                 raise e
             else:
+                print(f'An unexpected error occurred: {str(e)}')
                 raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
 
     async def stream_start(self):
