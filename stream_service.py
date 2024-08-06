@@ -1,5 +1,6 @@
 from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
+from contextlib import asynccontextmanager
 import requests
 from config import Config
 from utils import Utils
@@ -30,13 +31,13 @@ class StreamService:
                 pass
         print('worker job done')
 
-
+    @asynccontextmanager
     async def lifespan(self, app: FastAPI) -> AsyncIterator[None]:
         print('starter')
         self.pokemons_queue = queue.Queue()
         self.isAlive = True
         self.thread.start()
-        # await self.stream_start()
+        await self.stream_start()
         yield
         print('shutting down')
         self.isAlive = False
