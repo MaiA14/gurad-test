@@ -2,6 +2,7 @@ from typing import Dict, Any, List
 from config import Config
 import re
 import operator
+import httpx
 
 class MatchService:
     @staticmethod    
@@ -86,30 +87,34 @@ class MatchService:
             print("No rules matched. No notification sent.")
 
                 
-    @staticmethod
     def notify_subscribers(pokemon_message: dict, matched_rules: list):
-        print('notify_subscribers ', pokemon_message, matched_rules)
+        print('notify_subscribers', pokemon_message, matched_rules)
+        
         pokemon_data = pokemon_message.get("pokemon_data", {})
         headers_from_message = pokemon_message.get("headers", {})
         
-        for rule in matched_rules:
-            subscriber_url = rule['url']
-            reason = rule['reason']
-            payload = {
-                "pokemon_data": pokemon_data
-            }
-            headers = {
-                "Content-Type": "application/json",
-                "X-Grd-Reason": reason
-            }
-            headers.update(headers_from_message)
-            
-            try:
-                print('try forward req ', headers, payload)
-                response = requests.post(subscriber_url, json=payload, headers=headers)
-                if response.status_code == 200:
-                    print(f"Notification sent successfully to {subscriber_url}")
-                else:
-                    print(f"Failed to send notification to {subscriber_url}. Status code: {response.status_code}")
-            except requests.RequestException as e:
-                print(f"Error sending notification to {subscriber_url}: {e}")
+        with httpx.AsyncClient() as client:
+            for rule in matched_rules:
+                subscriber_url = rule.get('url')
+                reason = rule.get('reason')
+                
+                payload = {
+                    "pokemon_data": pokemon_data
+                }
+                headers = {
+                    "Content-Type": "application/json",
+                    "X-Grd-Reason": reason
+                }
+                headers.update(headers_from_message)
+                
+                try:
+                    print('Attempting to forward request to ', subscriber_url, headers, payload)
+                    response = client.post(subscriber_url, json=payload, headers=headers)
+                    
+                    if response.status_code == 200:
+                        print('Notification sent successfully to ', subscriber_url)
+                    else:
+                        print('Failed to send notification to ', subscriber_url, response.status_code, response.text)
+                        
+                except httpx.RequestError as e:
+                    print('Error sending notification to ', subscriber_url, str(e))
