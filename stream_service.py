@@ -137,7 +137,7 @@ class StreamService:
             self.pokemons_queue.put(data)
 
     def _get_stream_config(self):
-        print('_get_stream_config ', data)
+        print('_get_stream_config ')
         stream_url = Config.get_stream_config_value("url")
         email = Config.get_stream_config_value("email")
         stream_start_url = Config.get_stream_config_value("stream_start_url")
@@ -152,7 +152,7 @@ class StreamService:
         }
 
     async def _send_stream_start_request(self, stream_start_url: str, payload: dict):
-        print('_send_stream_start_request')
+        print('_send_stream_start_request', stream_start_url, payload)
         async with httpx.AsyncClient() as client:
             response = await client.post(stream_start_url, json=payload)
             return {"status_code": response.status_code, "response": response.json()}
