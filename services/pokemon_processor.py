@@ -10,14 +10,12 @@ class PokemonProcessor:
         print('process_pokemon ', data)
         try:
             pokemon = json.loads(data)
-            if isinstance(pokemon.get('legendary'), str):
-                if pokemon['legendary'].lower() == 'false':
-                    pokemon['legendary'] = False
-                elif pokemon['legendary'].lower() == 'true':
-                    pokemon['legendary'] = True
-            return pokemon
+            pokemeon_converted_with_boolean = PokemonProcessor._convert_to_boolean(pokemon)
+            print('pokemeon_converted_with_boolean ', pokemeon_converted_with_boolean)
+            return pokemeon_converted_with_boolean
         except json.JSONDecodeError as e:
             return {"error": str(e)}
+
 
     @staticmethod
     def decode_protobuf_bytes_to_json(protobuf_data: bytes) -> str:
@@ -40,3 +38,22 @@ class PokemonProcessor:
             "legendary": pokemon.legendary
         }
         return json.dumps(pokemon_dict, indent=2)
+
+    @staticmethod
+    def _parse_string_to_boolean(value: Any) -> Any:
+        if isinstance(value, str):
+            value = value.lower()
+            if value == 'true':
+                return True
+            elif value == 'false':
+                return False
+        return value
+
+    @staticmethod
+    def _convert_to_boolean(d: Dict[str, Any]) -> Dict[str, Any]:
+        for key, value in d.items():
+            if isinstance(value, dict):
+                d[key] = PokemonProcessor._convert_to_boolean(value)
+            elif isinstance(value, str) and value.lower() in ('true', 'false'):
+                d[key] = PokemonProcessor._parse_string_to_boolean(value)
+        return d
