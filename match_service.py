@@ -6,7 +6,7 @@ import operator
 class MatchService:
     def process_matches(data: dict):
         print('process_matches ', data)
-        pokemon_data = pokemon_message.get("pokemon_data", {})
+        pokemon_data = data.get("pokemon_data", {})
         matched_rules = MatchService.match_check(pokemon_data)
         print('Matched rules:', matched_rules)
         if matched_rules:
