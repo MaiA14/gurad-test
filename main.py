@@ -9,10 +9,6 @@ app = FastAPI(lifespan=stream_service.lifespan)
 class ControlWorkerRequest(BaseModel):
     action: str
 
-@app.get("/")
-def read_root():
-    return {"message": "Hi"}
-
 @app.post("/stream")
 async def stream(request: Request):
     return await stream_service.stream(request)
@@ -21,8 +17,8 @@ async def stream(request: Request):
 async def stream_start():
     return await stream_service.stream_start()
 
-@app.post("/control_worker")
+@app.post("/worker_control")
 async def control_worker(request: ControlWorkerRequest):
     action = request.action
-    await stream_service.control_worker(action)
+    await stream_service.worker_control(action)
     return {"message": f"Worker action performed: {action}"}
