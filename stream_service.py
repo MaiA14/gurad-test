@@ -20,6 +20,7 @@ class StreamService:
         self.thread = threading.Thread(target=self.worker, daemon=True)
         self.isAlive = False
 
+    @staticmethod  
     def stop_thread(self):
         print('stop_thread')
         self.isAlive = False
@@ -56,7 +57,7 @@ class StreamService:
         self.stop_thread()  
         self.pokemons_queue = None
     
-
+    @staticmethod 
     async def stream(self, request: Request):
         print('stream ', request)
         try:
@@ -83,7 +84,7 @@ class StreamService:
                 print(f'An unexpected error occurred: {str(e)}')
                 raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
 
-
+    @staticmethod 
     async def stream_start(self):
         print('stream_start')
         try:
@@ -95,7 +96,7 @@ class StreamService:
             print(f'Exception during stream start: {e}')
             return {"error": str(e)}
 
-
+    @staticmethod 
     async def worker_control(self, action: str) -> str:
         print('control_worker')
         if action == "start":
@@ -116,10 +117,12 @@ class StreamService:
         else:
             raise ValueError("Invalid action. Must be 'start' or 'stop'.")
 
+    @staticmethod 
     def _get_secret(self, key: str) -> str:
         print('_get_secret')
         return base64.b64encode(key.encode('utf-8')).decode('utf-8')
     
+    @staticmethod 
     def _validate_signature(self, headers: dict, body: bytes):
         print('_validate_signature')
         signature = headers.get('x-grd-signature')
@@ -133,12 +136,14 @@ class StreamService:
 
         if signature != hmaci:
             raise HTTPException(status_code=403, detail='Invalid signature')
-
+    
+    @staticmethod 
     def _publish_data_to_queue(self, data):
         print('_publish_data_to_queue ', data)
         if self.pokemons_queue is not None:
             self.pokemons_queue.put(data)
 
+    @staticmethod 
     def _get_stream_config(self):
         print('_get_stream_config ')
         stream_url = Config.get_stream_config_value("url")
@@ -146,6 +151,7 @@ class StreamService:
         stream_start_url = Config.get_stream_config_value("stream_start_url")
         return stream_url, email, stream_start_url
 
+    @staticmethod 
     def _prepare_payload(self, stream_url: str, email: str, enc_secret: str):
         print('_prepare_payload')
         return {
@@ -153,7 +159,8 @@ class StreamService:
             "email": email,
             "enc_secret": enc_secret
         }
-
+        
+    @staticmethod 
     async def _send_stream_start_request(self, stream_start_url: str, payload: dict):
         print('_send_stream_start_request', stream_start_url, payload)
         async with httpx.AsyncClient() as client:
