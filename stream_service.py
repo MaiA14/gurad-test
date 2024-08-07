@@ -14,7 +14,6 @@ import queue
 import threading
 import time
 
-
 class StreamService:
     def __init__(self):
         self.pokemons_queue = queue.Queue()
