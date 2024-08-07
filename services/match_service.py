@@ -17,10 +17,8 @@ class MatchService:
         for rule in rules:
             if MatchService._process_conditions(rule.get('match', []), pokemon):
                 matching_rules.append(rule)
-        
         return matching_rules
     
-
     @staticmethod    
     def process_matches(data: dict) -> None:
         print('process_matches ', data)
@@ -66,6 +64,7 @@ class MatchService:
 
     @staticmethod
     def _process_conditions(conditions: List[str], pokemon: Dict[str, Any]) -> bool:
+        print('_process_conditions ', conditions, pokemon)
         all_conditions_met = True
         
         for condition in conditions:
@@ -79,35 +78,47 @@ class MatchService:
         return all_conditions_met
     
     @staticmethod
+    def _check_equal(pokemon_value: Any, condition_value: Any) -> bool:
+        print('_check_equal ', pokemon_value, condition_value)
+        return pokemon_value == condition_value
+    
+    @staticmethod
+    def _check_not_equal(pokemon_value: Any, condition_value: Any) -> bool:
+        print('_check_not_equal ', pokemon_value, condition_value)
+        return pokemon_value != condition_value
+    
+    @staticmethod
+    def _check_greater_than(pokemon_value: Any, condition_value: Any) -> bool:
+        print('_check_greater_than ', pokemon_value, condition_value)
+        return pokemon_value > condition_value
+    
+    @staticmethod
+    def _check_less_than(pokemon_value: Any, condition_value: Any) -> bool:
+        print('_check_less_than ', pokemon_value, condition_value)
+        return pokemon_value < condition_value
+    
+    @staticmethod
     def _evaluate_condition(condition: str, pokemon: Dict[str, Any]) -> bool:
-        if '==' in condition:
-            key, value = MatchService._parse_condition(condition, '==')
-            if pokemon.get(key) != value:
-                print(f"Condition failed: {key} == {value} (pokemon.get({key}) = {pokemon.get(key)})")
-                return False
+        print('_evaluate_condition ', condition, pokemon)
+        operators = {
+            '==': MatchService._check_equal,
+            '!=': MatchService._check_not_equal,
+            '>': MatchService._check_greater_than,
+            '<': MatchService._check_less_than
+        }
         
-        elif '!=' in condition:
-            key, value = MatchService._parse_condition(condition, '!=')
-            if pokemon.get(key) == value:
-                print(f"Condition failed: {key} != {value} (pokemon.get({key}) = {pokemon.get(key)})")
-                return False
-        
-        elif '>' in condition:
-            key, value = MatchService._parse_condition(condition, '>')
-            if pokemon.get(key) <= value:
-                print(f"Condition failed: {key} > {value} (pokemon.get({key}) = {pokemon.get(key)})")
-                return False
-        
-        elif '<' in condition:
-            key, value = MatchService._parse_condition(condition, '<')
-            if pokemon.get(key) >= value:
-                print(f"Condition failed: {key} < {value} (pokemon.get({key}) = {pokemon.get(key)})")
-                return False
+        for operator, check_function in operators.items():
+            if operator in condition:
+                key, value = MatchService._parse_condition(condition, operator)
+                if not check_function(pokemon.get(key), value):
+                    print(f"Condition failed: {key} {operator} {value} (pokemon.get({key}) = {pokemon.get(key)})")
+                    return False
         
         return True
     
     @staticmethod
     def _parse_condition(condition: str, operator: str) -> (str, Any):
+        print('_parse_condition ', condition, operator)
         key, value = condition.split(operator)
         key = key.strip()
         value = value.strip().strip("'")
