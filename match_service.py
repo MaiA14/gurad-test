@@ -4,47 +4,6 @@ import re
 import operator
 
 class MatchService:
-    def process_matches(data: dict):
-        print('process_matches ', data)
-        pokemon_data = data.get("pokemon_data", {})
-        matched_rules = MatchService.match_check(pokemon_data)
-        print('Matched rules:', matched_rules)
-        if matched_rules:
-            print('got matched_rules ', matched_rules)
-            MatchService.notify_subscribers(pokemon_message, matched_rules)
-        else:
-            print("No rules matched. No notification sent.")
-
-                
-@staticmethod
-def notify_subscribers(pokemon_message: dict, matched_rules: list):
-    print('notify_subscribers ', pokemon_message, matched_rules)
-    pokemon_data = pokemon_message.get("pokemon_data", {})
-    headers_from_message = pokemon_message.get("headers", {})
-    
-    for rule in matched_rules:
-        subscriber_url = rule['url']
-        reason = rule['reason']
-        payload = {
-            "pokemon_data": pokemon_data
-        }
-        headers = {
-            "Content-Type": "application/json",
-            "X-Grd-Reason": reason
-        }
-        headers.update(headers_from_message)
-        
-        try:
-            print('try forward req ', headers, payload)
-            response = requests.post(subscriber_url, json=payload, headers=headers)
-            if response.status_code == 200:
-                print(f"Notification sent successfully to {subscriber_url}")
-            else:
-                print(f"Failed to send notification to {subscriber_url}. Status code: {response.status_code}")
-        except requests.RequestException as e:
-            print(f"Error sending notification to {subscriber_url}: {e}")
-
-
     @staticmethod    
     def match_check(pokemon):
         print('match_check', pokemon)
@@ -113,3 +72,44 @@ def notify_subscribers(pokemon_message: dict, matched_rules: list):
         
         print('matching_rules ', matching_rules)
         return matching_rules
+
+    @staticmethod    
+    def process_matches(data: dict):
+        print('process_matches ', data)
+        pokemon_data = data.get("pokemon_data", {})
+        matched_rules = MatchService.match_check(pokemon_data)
+        print('Matched rules:', matched_rules)
+        if matched_rules:
+            print('got matched_rules ', matched_rules)
+            MatchService.notify_subscribers(pokemon_message, matched_rules)
+        else:
+            print("No rules matched. No notification sent.")
+
+                
+    @staticmethod
+    def notify_subscribers(pokemon_message: dict, matched_rules: list):
+        print('notify_subscribers ', pokemon_message, matched_rules)
+        pokemon_data = pokemon_message.get("pokemon_data", {})
+        headers_from_message = pokemon_message.get("headers", {})
+        
+        for rule in matched_rules:
+            subscriber_url = rule['url']
+            reason = rule['reason']
+            payload = {
+                "pokemon_data": pokemon_data
+            }
+            headers = {
+                "Content-Type": "application/json",
+                "X-Grd-Reason": reason
+            }
+            headers.update(headers_from_message)
+            
+            try:
+                print('try forward req ', headers, payload)
+                response = requests.post(subscriber_url, json=payload, headers=headers)
+                if response.status_code == 200:
+                    print(f"Notification sent successfully to {subscriber_url}")
+                else:
+                    print(f"Failed to send notification to {subscriber_url}. Status code: {response.status_code}")
+            except requests.RequestException as e:
+                print(f"Error sending notification to {subscriber_url}: {e}")
