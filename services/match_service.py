@@ -1,5 +1,5 @@
 from typing import Dict, Any, List
-from config import Config
+from config.config import Config
 import re
 import operator
 import httpx

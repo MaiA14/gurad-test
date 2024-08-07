@@ -1,6 +1,6 @@
 import base64
 import json
-import pokedex_pb2
+import dtos.pokedex_pb2
 from typing import Dict, Any
 from google.protobuf.message import DecodeError
 

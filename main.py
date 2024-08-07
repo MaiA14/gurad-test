@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request
-from stream_service import StreamService
+from services.stream_service import StreamService
 from dtos.control_worker import ControlWorkerRequest 
 
 streamer = StreamService()
