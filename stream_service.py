@@ -56,34 +56,14 @@ class StreamService:
         self.stop_thread()  
         self.pokemons_queue = None
     
-    def _get_secret(self, key: str) -> str:
-        print('_get_secret')
-        return base64.b64encode(key.encode('utf-8')).decode('utf-8')
-
-    def publish_data_to_queue(self, data):
-        print('publish_data_to_queue ', data)
-        if self.pokemons_queue is not None:
-            self.pokemons_queue.put(data)
 
     async def stream(self, request: Request):
         print('stream ', request)
         try:
             headers = request.headers
             body = await request.body()
-            signature = headers.get('x-grd-signature')
-
-            if signature is None:
-                raise HTTPException(status_code=400, detail='Missing x-grd-signature header')
-
-            email = Config.get_stream_config_value("email")
-            key_base64 = self._get_secret(email)
-            key = base64.b64decode(key_base64)
-
-            hmaci = HMAC.new(key, body, digestmod=SHA256).hexdigest()
-
-            if signature != hmaci:
-                raise HTTPException(status_code=403, detail='Invalid signature')
-
+            
+            self._validate_signature(headers, body)
             decoded_pokemon = PokemonProcessor.decode_protobuf_bytes_to_json(body)
             processed_pokemon = PokemonProcessor.process_pokemon(decoded_pokemon)
 
@@ -92,8 +72,7 @@ class StreamService:
             "headers": dict(headers) 
             }
 
-            self.publish_data_to_queue(pokemon_message)
-            
+            self._publish_data_to_queue(pokemon_message)
             return JSONResponse(content={"processed_pokemon": processed_pokemon})
 
         except Exception as e:
@@ -104,23 +83,14 @@ class StreamService:
                 print(f'An unexpected error occurred: {str(e)}')
                 raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
 
+
     async def stream_start(self):
         print('stream_start')
-        stream_url = Config.get_stream_config_value("url")
-        email = Config.get_stream_config_value("email")
-        stream_start_url = Config.get_stream_config_value("stream_start_url")
-        enc_secret = self._get_secret(email)
-
-        payload = {
-            "url": stream_url,
-            "email": email,
-            "enc_secret": enc_secret
-        }
-
         try:
-            async with httpx.AsyncClient() as client:
-                response = await client.post(stream_start_url, json=payload)
-            return {"status_code": response.status_code, "response": response.json()}
+            stream_url, email, stream_start_url = self._get_stream_config()
+            enc_secret = self._get_secret(email)
+            payload = self._prepare_payload(stream_url, email, enc_secret)
+            return await self._send_stream_start_request(stream_start_url, payload)
         except Exception as e:
             print(f'Exception during stream start: {e}')
             return {"error": str(e)}
@@ -145,3 +115,44 @@ class StreamService:
             return "Worker is not running"
         else:
             raise ValueError("Invalid action. Must be 'start' or 'stop'.")
+
+    def _get_secret(self, key: str) -> str:
+        print('_get_secret')
+        return base64.b64encode(key.encode('utf-8')).decode('utf-8')
+    
+    def _validate_signature(self, headers: dict, body: bytes):
+        print('_validate_signature')
+        signature = headers.get('x-grd-signature')
+        if signature is None:
+            raise HTTPException(status_code=400, detail='Missing x-grd-signature header')
+
+        email = Config.get_stream_config_value("email")
+        key_base64 = self._get_secret(email)
+        key = base64.b64decode(key_base64)
+        hmaci = HMAC.new(key, body, digestmod=SHA256).hexdigest()
+
+    def _publish_data_to_queue(self, data):
+        print('_publish_data_to_queue ', data)
+        if self.pokemons_queue is not None:
+            self.pokemons_queue.put(data)
+
+    def _get_stream_config(self):
+        print('_get_stream_config ', data)
+        stream_url = Config.get_stream_config_value("url")
+        email = Config.get_stream_config_value("email")
+        stream_start_url = Config.get_stream_config_value("stream_start_url")
+        return stream_url, email, stream_start_url
+
+    def _prepare_payload(self, stream_url: str, email: str, enc_secret: str):
+        print('_prepare_payload')
+        return {
+            "url": stream_url,
+            "email": email,
+            "enc_secret": enc_secret
+        }
+
+    async def _send_stream_start_request(self, stream_start_url: str, payload: dict):
+        print('_send_stream_start_request')
+        async with httpx.AsyncClient() as client:
+            response = await client.post(stream_start_url, json=payload)
+            return {"status_code": response.status_code, "response": response.json()}
