@@ -11,7 +11,6 @@ class PokemonProcessor:
         try:
             pokemon = json.loads(data)
             processed_pokemon = PokemonProcessor._convert_to_boolean(pokemon)
-            print('processed_pokemon ', processed_pokemon)
             return processed_pokemon
         except json.JSONDecodeError as e:
             return {"error": str(e)}
