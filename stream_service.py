@@ -12,6 +12,7 @@ from typing import AsyncIterator
 from fastapi import FastAPI
 import queue
 import threading
+import time
 
 
 class StreamService:
@@ -21,14 +22,15 @@ class StreamService:
         self.isAlive = False
 
     def worker(self):
+        print('worker started')
         while self.isAlive and self.pokemons_queue is not None:
             try:
                 pokemon = self.pokemons_queue.get(timeout=1)
-                print(f'Working on {req}')
+                print(f'Working on {pokemon}')
                 MatchService.process_matches(pokemon)
                 time.sleep(0.2)
-                print(f'Finished {req}')
-                self.pokemons_queue.task_done()
+                print(f'Finished {pokemon}')
+                self.pokemons_queue.join()
             except Exception as e:
                 pass
         print('worker job done')
@@ -43,7 +45,8 @@ class StreamService:
         yield
         print('shutting down')
         self.isAlive = False
-        self.thread.join()
+        if self.thread.is_alive():
+            self.thread.join()
         self.pokemons_reqs_queue.join()
         self.pokemons_queue = None
     
@@ -128,18 +131,21 @@ class StreamService:
             return {"error": str(e)}
 
 
-    async def control_worker(self, action: str):
+    async def control_worker(self, action: str) -> str:
         if action == "start":
-            if not self.isAlive:  
+            if not self.isAlive:
                 self.isAlive = True
                 self.thread = threading.Thread(target=self.worker, daemon=True)
                 self.thread.start()
+                return "Worker started"
+            return "Worker already running"
         elif action == "stop":
-            if self.isAlive:  
+            if self.isAlive:
                 self.isAlive = False
                 if self.thread.is_alive():
                     self.thread.join()
-                self.pokemons_queue.join()  
+                self.pokemons_queue.join()
+                return "Worker stopped"
+            return "Worker is not running"
         else:
             raise ValueError("Invalid action. Must be 'start' or 'stop'.")
-        print('isAlive ', self.isAlive)
