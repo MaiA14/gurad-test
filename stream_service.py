@@ -1,62 +1,70 @@
 from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
-import httpx 
+import requests
 from config import Config
-from typing import Dict, Any, AsyncIterator
+from typing import Dict, Any
 from pokemon_processor import PokemonProcessor
 from match_service import MatchService
 from Crypto.Hash import HMAC, SHA256
 import base64
+from typing import AsyncIterator
 from fastapi import FastAPI
 import queue
 import threading
 import time
-
+import httpx 
 
 class StreamService:
     def __init__(self):
         self.pokemons_queue = queue.Queue()
-        self.stop_event = threading.Event() 
         self.thread = threading.Thread(target=self.worker, daemon=True)
+        self.isAlive = False
+
+    def stop_thread(self):
+        print('stop_thread')
+        """Stops the worker thread and joins it."""
+        self.isAlive = False
+        if self.thread and self.thread.is_alive():
+            self.thread.join(timeout=5)
+        self.pokemons_queue.join()  # Ensure all tasks are done before stopping
+        print('Thread stopped and queue joined')
 
     def worker(self):
-        print('Worker started')  
-        while not self.stop_event.is_set(): 
+        print('worker started')
+        while self.isAlive:
             try:
                 pokemon = self.pokemons_queue.get(timeout=1)
-                print('Working on {pokemon}') 
+                print(f'Working on {pokemon}')
                 MatchService.process_matches(pokemon)
                 time.sleep(0.2)
-                print('Finished {pokemon}') 
+                print(f'Finished {pokemon}')
                 self.pokemons_queue.task_done()
-            except queue.Empty:  
-                continue
+            except queue.Empty:
+                continue 
             except Exception as e:
-                print('Error in worker: {e}')  
+                print(f'Error in worker: {e}')  # Log exception
         print('Worker job done')
 
     @asynccontextmanager
     async def lifespan(self, app: FastAPI) -> AsyncIterator[None]:
-        print('Starting lifespan')  
+        print('starter')
         self.pokemons_queue = queue.Queue()
-        self.stop_event.clear()  
+        self.isAlive = True
         self.thread.start()
         await self.stream_start()
         yield
-        print('Shutting down') 
-        self.stop_event.set() 
-        if self.thread.is_alive():
-            self.thread.join()
-        self.pokemons_queue.join()
+        print('shutting down')
+        self.stop_thread()  
         self.pokemons_queue = None
-
+    
     def _get_secret(self, key: str) -> str:
         return base64.b64encode(key.encode('utf-8')).decode('utf-8')
 
     def publish_data_to_queue(self, data):
-        print('Publishing data to queue:', data)  
+        print('publish_data_to_queue ', data)
         if self.pokemons_queue is not None:
+            print('publish_data_to_queue queue not none')
             self.pokemons_queue.put(data)
     
     def match_request(data: dict) -> Any:
@@ -69,77 +77,83 @@ class StreamService:
     async def stream(self, request: Request):
         try:
             headers = request.headers
-            print('Headers: ', headers)  
+            print('headers ', headers)
             body = await request.body()
-            print('Body: ', body)  
+            print('body ', body)
 
             signature = headers.get('x-grd-signature')
+
             if signature is None:
                 raise HTTPException(status_code=400, detail='Missing x-grd-signature header')
 
             email = Config.get_stream_config_value("email")
             key_base64 = self._get_secret(email)
             key = base64.b64decode(key_base64)
+
             hmaci = HMAC.new(key, body, digestmod=SHA256).hexdigest()
 
             if signature != hmaci:
                 raise HTTPException(status_code=403, detail='Invalid signature')
 
-            print('Signature verified:' , hmaci)  
+            print('hmaci ', hmaci)
 
             decoded_pokemon = PokemonProcessor.decode_protobuf_bytes_to_json(body)
             processed_pokemon = PokemonProcessor.process_pokemon(decoded_pokemon)
 
             pokemon_message = {
-                "pokemon_data": processed_pokemon,
-                "headers": dict(headers)
+            "pokemon_data": processed_pokemon,
+            "headers": dict(headers) 
             }
 
-            print('Pokemon message: ', pokemon_message) 
+            print('pokemon_message ', pokemon_message)
             self.publish_data_to_queue(pokemon_message)
             
             return JSONResponse(content={"processed_pokemon": processed_pokemon})
 
-        except HTTPException as e:
-            print('HTTPException occurred: Status Code: {e.status_code}, Detail: {e.detail}') 
-            raise e
         except Exception as e:
-            print('An unexpected error occurred:', {str(e)}) 
-            raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
+            if isinstance(e, HTTPException):
+                print(f'HTTPException occurred: Status Code: {e.status_code}, Detail: {e.detail}')
+                raise e
+            else:
+                print(f'An unexpected error occurred: {str(e)}')
+                raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
 
     async def stream_start(self):
-        print('Starting stream')  
+        print('Stream start')
         stream_url = Config.get_stream_config_value("url")
         email = Config.get_stream_config_value("email")
         stream_start_url = Config.get_stream_config_value("stream_start_url")
         enc_secret = self._get_secret(email)
-        print('Enc secret: , Stream URL:, Email: ', enc_secret, stream_url, email)  
+        print('enc_secret ', enc_secret, stream_url, email)
         payload = {
             "url": stream_url,
             "email": email,
             "enc_secret": enc_secret
         }
-        
+
         try:
-            async with httpx.AsyncClient() as client:  
+            print('Try stream start')
+            async with httpx.AsyncClient() as client:
                 response = await client.post(stream_start_url, json=payload)
-                return {"status_code": response.status_code, "response": response.json()}
+            return {"status_code": response.status_code, "response": response.json()}
         except Exception as e:
-            print('Error starting stream: {e}')  
+            print(f'Exception during stream start: {e}')
             return {"error": str(e)}
+
 
     async def control_worker(self, action: str) -> str:
         if action == "start":
-            if not self.thread.is_alive():  
-                self.stop_event.clear() 
+            if not self.isAlive:
+                self.isAlive = True
                 self.thread = threading.Thread(target=self.worker, daemon=True)
                 self.thread.start()
                 return "Worker started"
             return "Worker already running"
         elif action == "stop":
-            if self.thread.is_alive():  
-                self.stop_event.set()  
-                self.thread.join()
+            if self.isAlive:
+                self.isAlive = False
+                if self.thread.is_alive():
+                    self.thread.join()
                 self.pokemons_queue.join()
                 return "Worker stopped"
             return "Worker is not running"
