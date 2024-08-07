@@ -92,29 +92,31 @@ class MatchService:
         
         pokemon_data = pokemon_message.get("pokemon_data", {})
         headers_from_message = pokemon_message.get("headers", {})
+
+        print('notify_subscribers pokemon_data ', pokemon_data)
+        print('notify_subscribers headers_from_message ', headers_from_message)
         
-        with httpx.AsyncClient() as client:
-            for rule in matched_rules:
-                subscriber_url = rule.get('url')
-                reason = rule.get('reason')
-                
-                payload = {
-                    "pokemon_data": pokemon_data
-                }
-                headers = {
-                    "Content-Type": "application/json",
-                    "X-Grd-Reason": reason
-                }
-                headers.update(headers_from_message)
-                
-                try:
+        try:
+            with httpx.AsyncClient() as client:
+                for rule in matched_rules:
+                    subscriber_url = rule.get('url')
+                    reason = rule.get('reason')
+                    
+                    payload = pokemon_data
+                    headers = {
+                        "Content-Type": "application/json",
+                        "X-Grd-Reason": reason
+                    }
+                    headers.update(headers_from_message)
+                    
+                    
                     print('Attempting to forward request to ', subscriber_url, headers, payload)
                     response = client.post(subscriber_url, json=payload, headers=headers)
-                    
+                        
                     if response.status_code == 200:
                         print('Notification sent successfully to ', subscriber_url)
                     else:
                         print('Failed to send notification to ', subscriber_url, response.status_code, response.text)
                         
-                except httpx.RequestError as e:
+        except httpx.RequestError as e:
                     print('Error sending notification to ', subscriber_url, str(e))
