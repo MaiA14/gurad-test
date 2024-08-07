@@ -1,24 +1,22 @@
 from fastapi import FastAPI, Request
-from pydantic import BaseModel
 from stream_service import StreamService
+from dtos.control_worker import ControlWorkerRequest 
 
-stream_service = StreamService()
+streamer = StreamService()
 
-app = FastAPI(lifespan=stream_service.lifespan)
+app = FastAPI(lifespan=streamer.lifespan)
 
-class ControlWorkerRequest(BaseModel):
-    action: str
 
 @app.post("/stream")
 async def stream(request: Request):
-    return await stream_service.stream(request)
+    return await streamer.stream(request)
 
 @app.post("/stream_start")
 async def stream_start():
-    return await stream_service.stream_start()
+    return await streamer.stream_start()
 
 @app.post("/worker_control")
 async def control_worker(request: ControlWorkerRequest):
     action = request.action
-    await stream_service.worker_control(action)
+    await streamer.worker_control(action)
     return {"message": f"Worker action performed: {action}"}

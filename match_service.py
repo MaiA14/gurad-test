@@ -5,100 +5,74 @@ import operator
 import httpx
 import json
 
-class MatchService:
-    @staticmethod
+class MatchService:    
+    @staticmethod    
     def match_check(data):
         print('match_check', data)
+
         pokemon = data.get('pokemon_data', {})
         rules = Config.load_rules_config()["rules"]
         matching_rules = []
-
-        for rule in rules:
-            if PokemonMatcher.check_rule(rule, pokemon):
-                matching_rules.append(rule)
-
-        return matching_rules
-
-    @staticmethod
-    def check_rule(rule, pokemon):
-        match = rule['match']
-        all_conditions_met = True
-
-        for condition in match:
-            condition = condition.strip()
-            print(f"Checking condition: {condition}")
-
-            if not PokemonMatcher.check_condition(condition, pokemon):
-                all_conditions_met = False
-                break
         
-        return all_conditions_met
-
-    @staticmethod
-    def check_condition(condition, pokemon):
-        if '==' in condition:
-            return PokemonMatcher.check_equality(condition, pokemon)
-        elif '!=' in condition:
-            return PokemonMatcher.check_inequality(condition, pokemon)
-        elif '>' in condition:
-            return PokemonMatcher.check_greater_than(condition, pokemon)
-        elif '<' in condition:
-            return PokemonMatcher.check_less_than(condition, pokemon)
-        else:
-            print(f"Unknown condition: {condition}")
-            return False
-
-    @staticmethod
-    def check_equality(condition, pokemon):
-        key, value = PokemonMatcher.extract_key_value(condition, '==')
-        if value.isnumeric():
-            value = int(value)
-        print(f"Comparing {key}: pokemon.get({key}) = {pokemon.get(key)}, value = {value}")
-        if pokemon.get(key) != value:
-            print(f"Condition failed: {key} == {value} (pokemon.get({key}) = {pokemon.get(key)})")
-            return False
-        return True
-
-    @staticmethod
-    def check_inequality(condition, pokemon):
-        key, value = PokemonMatcher.extract_key_value(condition, '!=')
-        value = value.strip("'")
-        if value.isnumeric():
-            value = int(value)
-        print(f"Comparing {key}: pokemon.get({key}) = {pokemon.get(key)}, value = {value}")
-        if pokemon.get(key) == value:
-            print(f"Condition failed: {key} != {value} (pokemon.get({key}) = {pokemon.get(key)})")
-            return False
-        return True
-
-    @staticmethod
-    def check_greater_than(condition, pokemon):
-        key, value = PokemonMatcher.extract_key_value(condition, '>')
-        if value.isnumeric():
-            value = int(value)
-        print(f"Comparing {key}: pokemon.get({key}) = {pokemon.get(key)}, value = {value}")
-        if pokemon.get(key) <= value:
-            print(f"Condition failed: {key} > {value} (pokemon.get({key}) = {pokemon.get(key)})")
-            return False
-        return True
-
-    @staticmethod
-    def check_less_than(condition, pokemon):
-        key, value = PokemonMatcher.extract_key_value(condition, '<')
-        if value.isnumeric():
-            value = int(value)
-        print(f"Comparing {key}: pokemon.get({key}) = {pokemon.get(key)}, value = {value}")
-        if pokemon.get(key) >= value:
-            print(f"Condition failed: {key} < {value} (pokemon.get({key}) = {pokemon.get(key)})")
-            return False
-        return True
-
-    @staticmethod
-    def extract_key_value(condition, operator):
-        key, value = condition.split(operator)
-        key = key.strip()
-        value = value.strip()
-        return key, value    
+        for rule in rules:
+            match = rule['match']
+            all_conditions_met = True
+            
+            for condition in match:
+                condition = condition.strip()
+                print(f"Checking condition: {condition}") 
+                
+                if '==' in condition:
+                    key, value = condition.split('==')
+                    key = key.strip()
+                    value = value.strip()
+                    if value.isnumeric():
+                        value = int(value)
+                    print(f"Comparing {key}: pokemon.get({key}) = {pokemon.get(key)}, value = {value}")
+                    if pokemon.get(key) != value:
+                        print(f"Condition failed: {key} == {value} (pokemon.get({key}) = {pokemon.get(key)})")
+                        all_conditions_met = False
+                        break
+                
+                elif '!=' in condition:
+                    key, value = condition.split('!=')
+                    key = key.strip()
+                    value = value.strip().strip("'") 
+                    if value.isnumeric():
+                        value = int(value)
+                    print(f"Comparing {key}: pokemon.get({key}) = {pokemon.get(key)}, value = {value}")
+                    if pokemon.get(key) == value:
+                        print(f"Condition failed: {key} != {value} (pokemon.get({key}) = {pokemon.get(key)})")
+                        all_conditions_met = False
+                        break
+                
+                elif '>' in condition:
+                    key, value = condition.split('>')
+                    key = key.strip()
+                    value = value.strip()
+                    if value.isnumeric():
+                        value = int(value)
+                    print(f"Comparing {key}: pokemon.get({key}) = {pokemon.get(key)}, value = {value}")
+                    if pokemon.get(key) <= value:
+                        print(f"Condition failed: {key} > {value} (pokemon.get({key}) = {pokemon.get(key)})")
+                        all_conditions_met = False
+                        break
+                
+                elif '<' in condition:
+                    key, value = condition.split('<')
+                    key = key.strip()
+                    value = value.strip()
+                    if value.isnumeric():
+                        value = int(value)
+                    print(f"Comparing {key}: pokemon.get({key}) = {pokemon.get(key)}, value = {value}")
+                    if pokemon.get(key) >= value:
+                        print(f"Condition failed: {key} < {value} (pokemon.get({key}) = {pokemon.get(key)})")
+                        all_conditions_met = False
+                        break
+            
+            if all_conditions_met:
+                matching_rules.append(rule)
+        return matching_rules
 
     @staticmethod    
     def process_matches(data: dict):
