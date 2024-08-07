@@ -81,7 +81,7 @@ class MatchService:
         print('Matched rules:', matched_rules)
         if matched_rules:
             print('got matched_rules ', matched_rules)
-            MatchService.notify_subscribers(pokemon_message, matched_rules)
+            MatchService.notify_subscribers(pokemon_data, matched_rules)
         else:
             print("No rules matched. No notification sent.")
 
