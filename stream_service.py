@@ -23,11 +23,10 @@ class StreamService:
 
     def stop_thread(self):
         print('stop_thread')
-        """Stops the worker thread and joins it."""
         self.isAlive = False
         if self.thread and self.thread.is_alive():
             self.thread.join(timeout=5)
-        self.pokemons_queue.join()  # Ensure all tasks are done before stopping
+        self.pokemons_queue.join() 
         print('Thread stopped and queue joined')
 
     def worker(self):
@@ -43,7 +42,7 @@ class StreamService:
             except queue.Empty:
                 continue 
             except Exception as e:
-                print(f'Error in worker: {e}')  # Log exception
+                print(f'Error in worker: {e}') 
         print('Worker job done')
 
     @asynccontextmanager
@@ -66,13 +65,6 @@ class StreamService:
         if self.pokemons_queue is not None:
             print('publish_data_to_queue queue not none')
             self.pokemons_queue.put(data)
-    
-    def match_request(data: dict) -> Any:
-        rules = Config.load_rules_config()["rules"]
-        for rule in rules:
-            if all(evaluate_expression(exp, data) for exp in rule["match"]):
-                return rule
-        return None
 
     async def stream(self, request: Request):
         try:
