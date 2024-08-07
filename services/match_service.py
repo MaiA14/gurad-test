@@ -5,74 +5,21 @@ import operator
 import httpx
 import json
 
-class MatchService:    
-    @staticmethod    
-    def match_check(data) -> List[Dict[str, Any]]:
+class MatchService: 
+    @staticmethod   
+    def match_check(data: Dict[str, Any]) -> List[Dict[str, Any]]:
         print('match_check', data)
-
+        
         pokemon = data.get('pokemon_data', {})
         rules = Config.load_rules_config()["rules"]
         matching_rules = []
         
         for rule in rules:
-            match = rule['match']
-            all_conditions_met = True
-            
-            for condition in match:
-                condition = condition.strip()
-                print(f"Checking condition: {condition}") 
-                
-                if '==' in condition:
-                    key, value = condition.split('==')
-                    key = key.strip()
-                    value = value.strip()
-                    if value.isnumeric():
-                        value = int(value)
-                    print(f"Comparing {key}: pokemon.get({key}) = {pokemon.get(key)}, value = {value}")
-                    if pokemon.get(key) != value:
-                        print(f"Condition failed: {key} == {value} (pokemon.get({key}) = {pokemon.get(key)})")
-                        all_conditions_met = False
-                        break
-                
-                elif '!=' in condition:
-                    key, value = condition.split('!=')
-                    key = key.strip()
-                    value = value.strip().strip("'") 
-                    if value.isnumeric():
-                        value = int(value)
-                    print(f"Comparing {key}: pokemon.get({key}) = {pokemon.get(key)}, value = {value}")
-                    if pokemon.get(key) == value:
-                        print(f"Condition failed: {key} != {value} (pokemon.get({key}) = {pokemon.get(key)})")
-                        all_conditions_met = False
-                        break
-                
-                elif '>' in condition:
-                    key, value = condition.split('>')
-                    key = key.strip()
-                    value = value.strip()
-                    if value.isnumeric():
-                        value = int(value)
-                    print(f"Comparing {key}: pokemon.get({key}) = {pokemon.get(key)}, value = {value}")
-                    if pokemon.get(key) <= value:
-                        print(f"Condition failed: {key} > {value} (pokemon.get({key}) = {pokemon.get(key)})")
-                        all_conditions_met = False
-                        break
-                
-                elif '<' in condition:
-                    key, value = condition.split('<')
-                    key = key.strip()
-                    value = value.strip()
-                    if value.isnumeric():
-                        value = int(value)
-                    print(f"Comparing {key}: pokemon.get({key}) = {pokemon.get(key)}, value = {value}")
-                    if pokemon.get(key) >= value:
-                        print(f"Condition failed: {key} < {value} (pokemon.get({key}) = {pokemon.get(key)})")
-                        all_conditions_met = False
-                        break
-            
-            if all_conditions_met:
+            if MatchService._process_conditions(rule.get('match', []), pokemon):
                 matching_rules.append(rule)
+        
         return matching_rules
+    
 
     @staticmethod    
     def process_matches(data: dict) -> None:
@@ -116,3 +63,56 @@ class MatchService:
                         
         except httpx.RequestError as e:
                     print('Error sending notification to ', subscriber_url, str(e))
+
+    @staticmethod
+    def _process_conditions(conditions: List[str], pokemon: Dict[str, Any]) -> bool:
+        all_conditions_met = True
+        
+        for condition in conditions:
+            condition = condition.strip()
+            print(f"Checking condition: {condition}")
+            
+            if not MatchService._evaluate_condition(condition, pokemon):
+                all_conditions_met = False
+                break
+        
+        return all_conditions_met
+    
+    @staticmethod
+    def _evaluate_condition(condition: str, pokemon: Dict[str, Any]) -> bool:
+        if '==' in condition:
+            key, value = MatchService._parse_condition(condition, '==')
+            if pokemon.get(key) != value:
+                print(f"Condition failed: {key} == {value} (pokemon.get({key}) = {pokemon.get(key)})")
+                return False
+        
+        elif '!=' in condition:
+            key, value = MatchService._parse_condition(condition, '!=')
+            if pokemon.get(key) == value:
+                print(f"Condition failed: {key} != {value} (pokemon.get({key}) = {pokemon.get(key)})")
+                return False
+        
+        elif '>' in condition:
+            key, value = MatchService._parse_condition(condition, '>')
+            if pokemon.get(key) <= value:
+                print(f"Condition failed: {key} > {value} (pokemon.get({key}) = {pokemon.get(key)})")
+                return False
+        
+        elif '<' in condition:
+            key, value = MatchService._parse_condition(condition, '<')
+            if pokemon.get(key) >= value:
+                print(f"Condition failed: {key} < {value} (pokemon.get({key}) = {pokemon.get(key)})")
+                return False
+        
+        return True
+    
+    @staticmethod
+    def _parse_condition(condition: str, operator: str) -> (str, Any):
+        key, value = condition.split(operator)
+        key = key.strip()
+        value = value.strip().strip("'")
+        
+        if value.isnumeric():
+            value = int(value)
+        
+        return key, value
