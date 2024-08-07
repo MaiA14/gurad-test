@@ -41,7 +41,7 @@ class StreamService:
             except queue.Empty:
                 continue 
             except Exception as e:
-                print(f'Error in worker: {e}') 
+               pass
         print('Worker job done')
 
     @asynccontextmanager

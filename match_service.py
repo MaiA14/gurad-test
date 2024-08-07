@@ -3,6 +3,7 @@ from config import Config
 import re
 import operator
 import httpx
+import json
 
 class MatchService:
     @staticmethod    
@@ -94,7 +95,9 @@ class MatchService:
         pokemon_info = pokemon_message.get('pokemon_data', {})
         headers_from_message = pokemon_message.get('headers', {})
 
-        print('notify_subscribers pokemon_info ', pokemon_info)
+        converted_pokemnon_dict_to_proto = json.dumps(pokemon_info)
+
+        print('notify_subscribers pokemon_info ', converted_pokemnon_dict_to_proto)
         print('notify_subscribers headers_from_message ', headers_from_message)
         
         try:
@@ -103,7 +106,7 @@ class MatchService:
                     subscriber_url = rule.get('url')
                     reason = rule.get('reason')
                     
-                    payload = pokemon_info
+                    payload = converted_pokemnon_dict_to_proto
                     headers = {
                         "Content-Type": "application/json",
                         "X-Grd-Reason": reason
