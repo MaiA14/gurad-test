@@ -7,6 +7,7 @@ from google.protobuf.message import DecodeError
 class PokemonProcessor:
     @staticmethod
     def process_pokemon(data: str) -> Dict[str, Any]:
+        print('process_pokemon ', data)
         try:
             pokemon = json.loads(data)
             if isinstance(pokemon.get('legendary'), str):
@@ -20,6 +21,7 @@ class PokemonProcessor:
 
     @staticmethod
     def decode_protobuf_bytes_to_json(protobuf_data: bytes) -> str:
+        print('decode_protobuf_bytes_to_json ', protobuf_data)
         pokemon = pokedex_pb2.Pokemon()
         pokemon.ParseFromString(protobuf_data)
         pokemon_dict = {
@@ -38,6 +40,3 @@ class PokemonProcessor:
             "legendary": pokemon.legendary
         }
         return json.dumps(pokemon_dict, indent=2)
-        
-
-

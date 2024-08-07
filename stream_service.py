@@ -46,7 +46,7 @@ class StreamService:
 
     @asynccontextmanager
     async def lifespan(self, app: FastAPI) -> AsyncIterator[None]:
-        print('starter')
+        print('lifespan')
         self.pokemons_queue = queue.Queue()
         self.isAlive = True
         self.thread.start()
@@ -57,21 +57,19 @@ class StreamService:
         self.pokemons_queue = None
     
     def _get_secret(self, key: str) -> str:
+        print('_get_secret')
         return base64.b64encode(key.encode('utf-8')).decode('utf-8')
 
     def publish_data_to_queue(self, data):
         print('publish_data_to_queue ', data)
         if self.pokemons_queue is not None:
-            print('publish_data_to_queue queue not none')
             self.pokemons_queue.put(data)
 
     async def stream(self, request: Request):
+        print('stream ', request)
         try:
             headers = request.headers
-            print('headers ', headers)
             body = await request.body()
-            print('body ', body)
-
             signature = headers.get('x-grd-signature')
 
             if signature is None:
@@ -86,8 +84,6 @@ class StreamService:
             if signature != hmaci:
                 raise HTTPException(status_code=403, detail='Invalid signature')
 
-            print('hmaci ', hmaci)
-
             decoded_pokemon = PokemonProcessor.decode_protobuf_bytes_to_json(body)
             processed_pokemon = PokemonProcessor.process_pokemon(decoded_pokemon)
 
@@ -96,7 +92,6 @@ class StreamService:
             "headers": dict(headers) 
             }
 
-            print('pokemon_message ', pokemon_message)
             self.publish_data_to_queue(pokemon_message)
             
             return JSONResponse(content={"processed_pokemon": processed_pokemon})
@@ -110,12 +105,12 @@ class StreamService:
                 raise HTTPException(status_code=500, detail=f"An unexpected error occurred: {e}")
 
     async def stream_start(self):
-        print('Stream start')
+        print('stream_start')
         stream_url = Config.get_stream_config_value("url")
         email = Config.get_stream_config_value("email")
         stream_start_url = Config.get_stream_config_value("stream_start_url")
         enc_secret = self._get_secret(email)
-        print('enc_secret ', enc_secret, stream_url, email)
+
         payload = {
             "url": stream_url,
             "email": email,
@@ -123,7 +118,6 @@ class StreamService:
         }
 
         try:
-            print('Try stream start')
             async with httpx.AsyncClient() as client:
                 response = await client.post(stream_start_url, json=payload)
             return {"status_code": response.status_code, "response": response.json()}
@@ -133,6 +127,7 @@ class StreamService:
 
 
     async def control_worker(self, action: str) -> str:
+        print('control_worker')
         if action == "start":
             if not self.isAlive:
                 self.isAlive = True

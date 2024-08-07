@@ -9,10 +9,9 @@ class MatchService:
     @staticmethod    
     def match_check(data):
         print('match_check', data)
+
         pokemon = data.get('pokemon_data', {})
-        print('pokemon from match')
         rules = Config.load_rules_config()["rules"]
-        print('rules from match_check ', rules)
         matching_rules = []
         
         for rule in rules:
@@ -73,28 +72,21 @@ class MatchService:
             
             if all_conditions_met:
                 matching_rules.append(rule)
-        
-        print('matching_rules ', matching_rules)
         return matching_rules
 
     @staticmethod    
     def process_matches(data: dict):
         print('process_matches ', data)
-        matched_rules = MatchService.match_check(data)
-        print('Matched rules:', matched_rules)
-        if matched_rules:
-            print('got matched_rules ',data, matched_rules)
-            MatchService.notify_subscribers(data, matched_rules)
-        else:
-            print("No rules matched. No notification sent.")
 
+        matched_rules = MatchService.match_check(data)
+        if matched_rules:
+            MatchService.notify_subscribers(data, matched_rules)
                 
     def notify_subscribers(pokemon_message: dict, matched_rules: list):
         print('notify_subscribers', pokemon_message, matched_rules)
         
         pokemon_info = pokemon_message.get('pokemon_data', {})
         headers_from_message = pokemon_message.get('headers', {})
-
         converted_pokemnon_dict_to_proto = json.dumps(pokemon_info)
 
         print('notify_subscribers pokemon_info ', converted_pokemnon_dict_to_proto)
@@ -112,8 +104,7 @@ class MatchService:
                         "X-Grd-Reason": reason
                     }
                     headers.update(headers_from_message)
-                    
-                    
+                         
                     print('Attempting to forward request to ', subscriber_url, headers, payload)
                     response = client.post(subscriber_url, json=payload, headers=headers)
                         
