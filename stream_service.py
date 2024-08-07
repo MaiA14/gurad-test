@@ -3,7 +3,9 @@ from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 import requests
 from config import Config
-from utils import Utils
+from typing import Dict, Any
+from pokemon_processor import PokemonProcessor
+from match_service import MatchService
 from Crypto.Hash import HMAC, SHA256
 import base64
 from typing import AsyncIterator
@@ -21,9 +23,9 @@ class StreamService:
     def worker(self):
         while self.isAlive and self.pokemons_queue is not None:
             try:
-                req = self.pokemons_queue.get(timeout=1)
+                pokemon = self.pokemons_queue.get(timeout=1)
                 print(f'Working on {req}')
-                self.check_match(req)
+                MatchService.process_matches(pokemon)
                 time.sleep(0.2)
                 print(f'Finished {req}')
                 self.pokemons_queue.task_done()
@@ -44,13 +46,22 @@ class StreamService:
         self.thread.join()
         self.pokemons_reqs_queue.join()
         self.pokemons_queue = None
+    
+    def _get_secret(self, key: str) -> str:
+        return base64.b64encode(key.encode('utf-8')).decode('utf-8')
 
-    def check_match(self, req):
-        print('check_match not implemented yet')
-
-    def publish_data_to_queue(self,data):
+    def publish_data_to_queue(self, data):
+        print('publish_data_to_queue ', data)
         if self.pokemons_queue is not None:
+            print('publish_data_to_queue queue not none')
             self.pokemons_queue.put(data)
+    
+    def match_request(data: dict) -> Any:
+        rules = Config.load_rules_config()["rules"]
+        for rule in rules:
+            if all(evaluate_expression(exp, data) for exp in rule["match"]):
+                return rule
+        return None
 
     async def stream(self, request: Request):
         try:
@@ -65,7 +76,7 @@ class StreamService:
                 raise HTTPException(status_code=400, detail='Missing x-grd-signature header')
 
             email = Config.get_stream_config_value("email")
-            key_base64 = Utils.get_secret(email)
+            key_base64 = PokemonProcessor.get_secret(email)
             key = base64.b64decode(key_base64)
 
             hmaci = HMAC.new(key, body, digestmod=SHA256).hexdigest()
@@ -75,10 +86,16 @@ class StreamService:
 
             print('hmaci ', hmaci)
 
-            decoded_pokemon = Utils.decode_protobuf_bytes_to_json(body)
-            processed_pokemon = Utils.process_pokemon(decoded_pokemon)
-            print('decoded ', processed_pokemon)
-            self.publish_data_to_queue(processed_pokemon)
+            decoded_pokemon = PokemonProcessor.decode_protobuf_bytes_to_json(body)
+            processed_pokemon = PokemonProcessor.process_pokemon(decoded_pokemon)
+
+            pokemon_message = {
+            "pokemon_data": processed_pokemon,
+            "headers": dict(headers) 
+            }
+
+            print('pokemon_message ', pokemon_message)
+            self.publish_data_to_queue(pokemon_message)
             
             return JSONResponse(content={"processed_pokemon": processed_pokemon})
 
@@ -95,7 +112,7 @@ class StreamService:
         stream_url = Config.get_stream_config_value("url")
         email = Config.get_stream_config_value("email")
         stream_start_url = Config.get_stream_config_value("stream_start_url")
-        enc_secret = Utils.get_secret(email)
+        enc_secret = self._get_secret(email)
         print('enc_secret ', enc_secret, stream_url, email)
         payload = {
             "url": stream_url,

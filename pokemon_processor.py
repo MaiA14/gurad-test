@@ -4,11 +4,7 @@ import pokedex_pb2
 from typing import Dict, Any
 from google.protobuf.message import DecodeError
 
-class Utils:
-    @staticmethod
-    def get_secret(key: str) -> str:
-        return base64.b64encode(key.encode('utf-8')).decode('utf-8')
-
+class PokemonProcessor:
     @staticmethod
     def process_pokemon(data: str) -> Dict[str, Any]:
         try:
@@ -42,4 +38,6 @@ class Utils:
             "legendary": pokemon.legendary
         }
         return json.dumps(pokemon_dict, indent=2)
+        
+
 

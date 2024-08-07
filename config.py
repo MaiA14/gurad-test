@@ -12,9 +12,9 @@ class Config:
 
     @staticmethod
     def load_rules_config():
-        config_path = os.getenv("RULES_CONFIG_PATH")
+        config_path = os.getenv("POKEPROXY_CONFIG")
         if not config_path:
-            raise ValueError("Environment variable RULES_CONFIG_PATH not set")
+            raise ValueError("Environment variable POKEPROXY_CONFIG not set")
         with open(config_path, "r") as file:
             return json.load(file)
 
