@@ -96,7 +96,7 @@ class StreamService:
             return {"error": str(e)}
 
 
-    async def control_worker(self, action: str) -> str:
+    async def worker_control(self, action: str) -> str:
         print('control_worker')
         if action == "start":
             if not self.isAlive:
