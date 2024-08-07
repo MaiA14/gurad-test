@@ -131,6 +131,9 @@ class StreamService:
         key = base64.b64decode(key_base64)
         hmaci = HMAC.new(key, body, digestmod=SHA256).hexdigest()
 
+        if signature != hmaci:
+            raise HTTPException(status_code=403, detail='Invalid signature')
+
     def _publish_data_to_queue(self, data):
         print('_publish_data_to_queue ', data)
         if self.pokemons_queue is not None:
