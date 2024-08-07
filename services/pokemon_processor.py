@@ -10,9 +10,9 @@ class PokemonProcessor:
         print('process_pokemon ', data)
         try:
             pokemon = json.loads(data)
-            pokemeon_converted_with_boolean = PokemonProcessor._convert_to_boolean(pokemon)
-            print('pokemeon_converted_with_boolean ', pokemeon_converted_with_boolean)
-            return pokemeon_converted_with_boolean
+            processed_pokemon = PokemonProcessor._convert_to_boolean(pokemon)
+            print('processed_pokemon ', processed_pokemon)
+            return processed_pokemon
         except json.JSONDecodeError as e:
             return {"error": str(e)}
 
