@@ -82,37 +82,57 @@ class MatchService:
         if matched_rules:
             MatchService.notify_subscribers(data, matched_rules)
 
-    @staticmethod             
-    def notify_subscribers(pokemon_message: dict, matched_rules: list):
+    @staticmethod
+    def notify_subscribers(pokemon_message: Dict[str, Any], matched_rules: List[Dict[str, Any]]):
         print('notify_subscribers', pokemon_message, matched_rules)
         
-        pokemon_info = pokemon_message.get('pokemon_data', {})
-        headers_from_message = pokemon_message.get('headers', {})
-        converted_pokemnon_dict_to_proto = json.dumps(pokemon_info)
-
-        print('notify_subscribers pokemon_info ', converted_pokemnon_dict_to_proto)
+        pokemon_info, headers_from_message = PokemonProcessor._get_pokemon_info(pokemon_message)
+        converted_pokemon_dict_to_proto = json.dumps(pokemon_info)
+        
+        print('notify_subscribers pokemon_info ', converted_pokemon_dict_to_proto)
         print('notify_subscribers headers_from_message ', headers_from_message)
         
         try:
-            with httpx.AsyncClient() as client:
-                for rule in matched_rules:
-                    subscriber_url = rule.get('url')
-                    reason = rule.get('reason')
+            for rule in matched_rules:
+                PokemonProcessor._send_notification(rule, converted_pokemon_dict_to_proto, headers_from_message)
                     
-                    payload = converted_pokemnon_dict_to_proto
-                    headers = {
-                        "Content-Type": "application/json",
-                        "X-Grd-Reason": reason
-                    }
-                    headers.update(headers_from_message)
-                         
-                    print('Attempting to forward request to ', subscriber_url, headers, payload)
-                    response = client.post(subscriber_url, json=payload, headers=headers)
-                        
-                    if response.status_code == 200:
-                        print('Notification sent successfully to ', subscriber_url)
-                    else:
-                        print('Failed to send notification to ', subscriber_url, response.status_code, response.text)
-                        
         except httpx.RequestError as e:
-                    print('Error sending notification to ', subscriber_url, str(e))
+            PokemonProcessor._handle_request_error(e)
+    
+    @staticmethod
+    def _get_pokemon_info(pokemon_message: Dict[str, Any]) -> (Dict[str, Any], Dict[str, str]):
+        print('_get_pokemon_info ', pokemon_message)
+        pokemon_info = pokemon_message.get('pokemon_data', {})
+        headers_from_message = pokemon_message.get('headers', {})
+        return pokemon_info, headers_from_message
+
+    @staticmethod
+    def _create_headers(reason: str, headers_from_message: Dict[str, str]) -> Dict[str, str]:
+        print('reason ',reason, headers_from_message)
+        headers = {
+            "Content-Type": "application/json",
+            "X-Grd-Reason": reason
+        }
+        headers.update(headers_from_message)
+        return headers
+
+    @staticmethod
+    async def _send_notification(rule: Dict[str, Any], payload: str, headers_from_message: Dict[str, str]):
+        print('_send_notification ', rule, payload, headers_from_message)
+        subscriber_url = rule.get('url')
+        reason = rule.get('reason')
+        headers = PokemonProcessor._create_headers(reason, headers_from_message)
+        
+        print('Attempting to forward request to ', subscriber_url, headers, payload)
+
+        async with httpx.AsyncClient() as client:
+            try:
+                response = await client.post(subscriber_url, json=payload, headers=headers)
+                
+                if response.status_code == 200:
+                    print('Notification sent successfully to ', subscriber_url)
+                else:
+                    print('Failed to send notification to ', subscriber_url, response.status_code, response.text)
+            except httpx.RequestError as e:
+                print('Error sending notification to ', subscriber_url, str(e))
+
