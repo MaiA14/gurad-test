@@ -2,7 +2,7 @@ from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
 from config.config import Config
-from typing import Dict, Any
+from typing import Dict, Any, Tuple
 from services.pokemon_processor import PokemonProcessor
 from services.match_service import MatchService
 from Crypto.Hash import HMAC, SHA256
