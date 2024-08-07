@@ -3,9 +3,7 @@ from stream_service import StreamService
 from dtos.control_worker import ControlWorkerRequest 
 
 streamer = StreamService()
-
 app = FastAPI(lifespan=streamer.lifespan)
-
 
 @app.post("/stream")
 async def stream(request: Request):
