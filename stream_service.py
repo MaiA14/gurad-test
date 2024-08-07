@@ -1,7 +1,6 @@
 from fastapi import Request, HTTPException
 from fastapi.responses import JSONResponse
 from contextlib import asynccontextmanager
-import requests
 from config import Config
 from typing import Dict, Any
 from pokemon_processor import PokemonProcessor
