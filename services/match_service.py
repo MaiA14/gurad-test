@@ -7,7 +7,7 @@ import json
 
 class MatchService:    
     @staticmethod    
-    def match_check(data):
+    def match_check(data) -> List[Dict[str, Any]]:
         print('match_check', data)
 
         pokemon = data.get('pokemon_data', {})
@@ -75,7 +75,7 @@ class MatchService:
         return matching_rules
 
     @staticmethod    
-    def process_matches(data: dict):
+    def process_matches(data: dict) -> None:
         print('process_matches ', data)
 
         matched_rules = MatchService.match_check(data)
@@ -83,7 +83,7 @@ class MatchService:
             MatchService.notify_subscribers(data, matched_rules)
 
     @staticmethod             
-    def notify_subscribers(pokemon_message: dict, matched_rules: list):
+    def notify_subscribers(pokemon_message: dict, matched_rules: list) -> None:
         print('notify_subscribers', pokemon_message, matched_rules)
         
         pokemon_info = pokemon_message.get('pokemon_data', {})
