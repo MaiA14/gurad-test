@@ -30,7 +30,7 @@ class StreamService:
                 MatchService.process_matches(pokemon)
                 time.sleep(0.2)
                 print(f'Finished {pokemon}')
-                self.pokemons_queue.join()
+                self.pokemons_queue.task_done()
             except Exception as e:
                 pass
         print('worker job done')
@@ -47,7 +47,7 @@ class StreamService:
         self.isAlive = False
         if self.thread.is_alive():
             self.thread.join()
-        self.pokemons_reqs_queue.join()
+        self.pokemons_queue.join()
         self.pokemons_queue = None
     
     def _get_secret(self, key: str) -> str:
