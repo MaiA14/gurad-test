@@ -6,8 +6,10 @@ import httpx
 
 class MatchService:
     @staticmethod    
-    def match_check(pokemon):
-        print('match_check', pokemon)
+    def match_check(data):
+        print('match_check', data)
+        pokemon = data.get('pokemon_data', {})
+        print('pokemon from match')
         rules = Config.load_rules_config()["rules"]
         print('rules from match_check ', rules)
         matching_rules = []
@@ -77,12 +79,11 @@ class MatchService:
     @staticmethod    
     def process_matches(data: dict):
         print('process_matches ', data)
-        pokemon_data = data.get('pokemon_data', {})
-        matched_rules = MatchService.match_check(pokemon_data)
+        matched_rules = MatchService.match_check(data)
         print('Matched rules:', matched_rules)
         if matched_rules:
-            print('got matched_rules ',pokemon_data, matched_rules)
-            MatchService.notify_subscribers(pokemon_data, matched_rules)
+            print('got matched_rules ',data, matched_rules)
+            MatchService.notify_subscribers(data, matched_rules)
         else:
             print("No rules matched. No notification sent.")
 
