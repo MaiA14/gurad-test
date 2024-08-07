@@ -77,11 +77,11 @@ class MatchService:
     @staticmethod    
     def process_matches(data: dict):
         print('process_matches ', data)
-        pokemon_data = data.get("pokemon_data", {})
+        pokemon_data = data.get('pokemon_data', {})
         matched_rules = MatchService.match_check(pokemon_data)
         print('Matched rules:', matched_rules)
         if matched_rules:
-            print('got matched_rules ', matched_rules)
+            print('got matched_rules ',pokemon_data, matched_rules)
             MatchService.notify_subscribers(pokemon_data, matched_rules)
         else:
             print("No rules matched. No notification sent.")
@@ -90,10 +90,10 @@ class MatchService:
     def notify_subscribers(pokemon_message: dict, matched_rules: list):
         print('notify_subscribers', pokemon_message, matched_rules)
         
-        pokemon_data = pokemon_message.get("pokemon_data", {})
-        headers_from_message = pokemon_message.get("headers", {})
+        pokemon_info = pokemon_message.get('pokemon_data', {})
+        headers_from_message = pokemon_message.get('headers', {})
 
-        print('notify_subscribers pokemon_data ', pokemon_data)
+        print('notify_subscribers pokemon_info ', pokemon_info)
         print('notify_subscribers headers_from_message ', headers_from_message)
         
         try:
@@ -102,7 +102,7 @@ class MatchService:
                     subscriber_url = rule.get('url')
                     reason = rule.get('reason')
                     
-                    payload = pokemon_data
+                    payload = pokemon_info
                     headers = {
                         "Content-Type": "application/json",
                         "X-Grd-Reason": reason
