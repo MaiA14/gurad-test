@@ -33,16 +33,17 @@ class MatchService:
         
         pokemon_info = pokemon_message.get('pokemon_data', {})
         headers_from_message = pokemon_message.get('headers', {})
-        pokemon_proto = json.dumps(pokemon_info)
+        converted_pokemnon_dict_to_proto = json.dumps(pokemon_info)
 
-        print('notify_subscribers final data', pokemon_proto, headers)
+        print('notify_subscribers pokemon_info ', converted_pokemnon_dict_to_proto)
+        print('notify_subscribers headers_from_message ', headers_from_message)
         
         try:
             with httpx.AsyncClient() as client:
                 for rule in matched_rules:
                     subscriber_url = rule.get('url')
                     reason = rule.get('reason')
-                    payload = pokemon_proto
+                    payload = converted_pokemnon_dict_to_proto
                     headers = {
                         "Content-Type": "application/json",
                         "X-Grd-Reason": reason
@@ -51,7 +52,7 @@ class MatchService:
                          
                     print('Attempting to forward request to ', subscriber_url, headers, payload)
                     response = client.post(subscriber_url, json=payload, headers=headers)
-                      
+                        
                     if response.status_code == 200:
                         print('Notification sent successfully to ', subscriber_url)
                     else:
@@ -111,7 +112,6 @@ class MatchService:
                 if not check_function(pokemon.get(key), value):
                     print(f"Condition failed: {key} {operator} {value} (pokemon.get({key}) = {pokemon.get(key)})")
                     return False
-        
         return True
     
     @staticmethod
@@ -123,5 +123,4 @@ class MatchService:
         
         if value.isnumeric():
             value = int(value)
-        
         return key, value
