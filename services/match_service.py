@@ -26,41 +26,59 @@ class MatchService:
         matched_rules = MatchService.match_check(data)
         if matched_rules:
             MatchService.notify_subscribers(data, matched_rules)
-
-    @staticmethod             
-    def notify_subscribers(pokemon_message: dict, matched_rules: list) -> None:
+    
+    @staticmethod
+    async def notify_subscribers(pokemon_message: Dict[str, Any], matched_rules: List[Dict[str, Any]]) -> None:
         print('notify_subscribers', pokemon_message, matched_rules)
         
         pokemon_info = pokemon_message.get('pokemon_data', {})
+        proto_pokemon = MatchService._convert_pokemon_info_to_json(pokemon_info)
         headers_from_message = pokemon_message.get('headers', {})
-        converted_pokemnon_dict_to_proto = json.dumps(pokemon_info)
-
-        print('notify_subscribers pokemon_info ', converted_pokemnon_dict_to_proto)
+        
+        print('notify_subscribers pokemon_info ', proto_pokemon)
         print('notify_subscribers headers_from_message ', headers_from_message)
         
-        try:
-            with httpx.AsyncClient() as client:
+        async with httpx.AsyncClient() as client:
+            try:
                 for rule in matched_rules:
                     subscriber_url = rule.get('url')
                     reason = rule.get('reason')
                     
-                    payload = converted_pokemnon_dict_to_proto
-                    headers = {
-                        "Content-Type": "application/json",
-                        "X-Grd-Reason": reason
-                    }
-                    headers.update(headers_from_message)
-                         
-                    print('Attempting to forward request to ', subscriber_url, headers, payload)
-                    response = client.post(subscriber_url, json=payload, headers=headers)
+                    headers = MatchService._prepare_headers(reason, headers_from_message)
+                    print('Attempting to forward request to ', subscriber_url, headers, proto_pokemon)
+                    
+                    try:
+                        response = await client.post(subscriber_url, json=proto_pokemon, headers=headers)
+                        MatchService._handle_notify_response(subscriber_url, response)
+                    except httpx.RequestError as e:
+                        print('Error sending notification: ', str(e))
                         
-                    if response.status_code == 200:
-                        print('Notification sent successfully to ', subscriber_url)
-                    else:
-                        print('Failed to send notification to ', subscriber_url, response.status_code, response.text)
-                        
-        except httpx.RequestError as e:
-                    print('Error sending notification to ', subscriber_url, str(e))
+            except httpx.RequestError as e:
+                print('Error sending notification: ', str(e))
+ 
+    
+    @staticmethod
+    def _handle_notify_response(subscriber_url: str, response: httpx.Response) -> None:
+        print('_handle_notify_response ', subscriber_url)
+        if response.status_code == 200:
+            print('Notification sent successfully to ', subscriber_url)
+        else:
+            print('Failed to send notification to ', subscriber_url, response.status_code, response.text)
+
+    @staticmethod
+    def _convert_pokemon_info_to_json(pokemon_info: Dict[str, Any]) -> str:
+        print('_convert_pokemon_info_to_json ', pokemon_info)
+        return json.dumps(pokemon_info)
+
+    @staticmethod
+    def _prepare_headers(reason: str, additional_headers: Dict[str, str]) -> Dict[str, str]:
+        print('_prepare_headers ', reason, additional_headers)
+        headers = {
+            "Content-Type": "application/json",
+            "X-Grd-Reason": reason
+        }
+        headers.update(additional_headers)
+        return headers
 
     @staticmethod
     def _process_conditions(conditions: List[str], pokemon: Dict[str, Any]) -> bool:
