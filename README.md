@@ -15,8 +15,7 @@ A Fast API app that integrate with a stream.
 POST https://satisfied-berty-mai2-b6a31fff.koyeb.app/stream_start
 
 ```
-<br>
-No need to pass body in order to get data. The required parameters are stores in config file.
+> :memo: **Note:** No need to pass body in order to get data. The required parameters are stored in config file.
 <br>
 Reasons: 
 <br>
