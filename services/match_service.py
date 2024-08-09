@@ -14,7 +14,7 @@ class MatchService:
         logging.info('match_check: %s', data)
         
         pokemon = data.get('pokemon_data', {})
-        rules = Config.load_rules_config()["rules"]
+        rules = Config.load_stream_config()["rules"]
         matching_rules = []
         
         for rule in rules:

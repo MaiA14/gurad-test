@@ -10,20 +10,8 @@ class Config:
         with open(config_path, "r") as file:
             return json.load(file)
 
-    @staticmethod
-    def load_rules_config():
-        config_path = os.getenv("POKEPROXY_CONFIG")
-        if not config_path:
-            raise ValueError("Environment variable POKEPROXY_CONFIG not set")
-        with open(config_path, "r") as file:
-            return json.load(file)
 
     @staticmethod
     def get_stream_config_value(key):
         config = Config.load_stream_config()
-        return config.get(key)
-
-    @staticmethod
-    def get_rules_config_value(key):
-        config = Config.load_rules_config()
         return config.get(key)
