@@ -24,3 +24,14 @@ Reasons:
 - Accessibility - this POST request won't work with a private email, because the hiring url supports the email you supplied. Private email gets status code 401 - Unauthorized.
 
 - Security - configuration files or environment variables can be protected with access controls and encryption, ensuring that only authorized processes or personnel can access the key.
+
+## Data:
+
+- Original data from stream: 
+<img src="https://i.ibb.co/p1PmhP8/3.png" alt="image" width="600" height="auto">
+
+- Normalizing data:
+<img src="https://i.ibb.co/sJLPmxc/Screenshot-2024-08-09-at-21-44-25.png" alt="image" width="600" height="auto">
+
+- Matched rules:
+<img src="https://i.ibb.co/F3jhf6F/Screenshot-2024-08-09-at-21-47-45.png" alt="image" width="600" height="auto">
