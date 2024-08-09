@@ -1,19 +1,17 @@
-from fastapi import Request, HTTPException
-from fastapi.responses import JSONResponse
-from contextlib import asynccontextmanager
-from config.config import Config
-from typing import Dict, Any, Tuple
-from services.pokemon_processor import PokemonProcessor
-from services.match_service import MatchService
-from Crypto.Hash import HMAC, SHA256
 import base64
-from typing import AsyncIterator
-from fastapi import FastAPI
 import queue
 import threading
 import time
-import httpx
+from contextlib import asynccontextmanager
+from typing import Dict, Any, Tuple, AsyncIterator
 import logging
+import httpx
+from Crypto.Hash import HMAC, SHA256
+from fastapi import Request, HTTPException, FastAPI
+from fastapi.responses import JSONResponse
+from config.config import Config
+from services.pokemon_processor import PokemonProcessor
+from services.match_service import MatchService
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -23,7 +21,7 @@ class StreamService:
         self.thread = threading.Thread(target=self.worker, daemon=True)
         self.isAlive = False
 
-    def stop_thread(self):
+    def stop_thread(self) -> None:
         logging.info('stop_thread')
         self.isAlive = False
         if self.thread and self.thread.is_alive():
@@ -31,7 +29,7 @@ class StreamService:
         self.pokemons_queue.join() 
         logging.info('Thread stopped and queue joined')
 
-    def worker(self):
+    def worker(self) -> None:
         logging.info('worker started')
         while self.isAlive:
             try:
@@ -44,7 +42,7 @@ class StreamService:
             except queue.Empty:
                 continue 
             except Exception as e:
-                logging.error('Exception in worker: %s', str(e))
+                pass
         logging.info('Worker job done')
 
     @asynccontextmanager

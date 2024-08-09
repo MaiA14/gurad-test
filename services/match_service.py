@@ -1,10 +1,10 @@
 from typing import Dict, Any, List
-from config.config import Config
 import re
 import operator
 import httpx
 import json
 import logging
+from config.config import Config
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 

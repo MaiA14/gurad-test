@@ -1,9 +1,9 @@
 import base64
 import json
-import pokedex_pb2
 from typing import Dict, Any
 from google.protobuf.message import DecodeError
 import logging
+import pokedex_pb2
 
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
