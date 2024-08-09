@@ -1,7 +1,7 @@
 # Streamer
 A Fast API app that integrate with a stream.
 
-# Features
+## Features
 - HTTPS 
 - Handle data according rules config (flexible)
 - Support both partial & complete objects of supplied proto
