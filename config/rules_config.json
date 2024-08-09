@@ -4,7 +4,8 @@
             "url": "http://my-special-awesome-pokemon-service.com",
             "reason": "awesome pokemon",
             "match": [
-                "hit_points > 20"
+                "hit_points > 20",
+                "type_two!=word"
             ]
         }
     ]
