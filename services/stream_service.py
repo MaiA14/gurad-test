@@ -123,6 +123,23 @@ class StreamService:
         else:
             raise ValueError("Invalid action. Must be 'start' or 'stop'.")
 
+    async def get_metrics(self) -> Dict[str, Any]:
+        logging.info('get_metrics')
+        
+        response_times = self.metrics.get('response_times', [])
+        if response_times:
+            average_response_time = sum(response_times) / len(response_times)
+        else:
+            average_response_time = 0
+
+        return {
+            'request_count': self.metrics['request_count'],
+            'error_count': self.metrics['error_count'],
+            'incoming_bytes': self.metrics['incoming_bytes'],
+            'outgoing_bytes': self.metrics['outgoing_bytes'],
+            'average_response_time': average_response_time
+        }
+
     def _get_secret(self, key: str) -> str:
         logging.info('_get_secret')
         return base64.b64encode(key.encode('utf-8')).decode('utf-8')
@@ -166,13 +183,3 @@ class StreamService:
         async with httpx.AsyncClient() as client:
             response = await client.post(stream_start_url, json=payload)  
             return {"status_code": response.status_code, "response": response.json()}
-
-    async def get_metrics(self) -> Dict[str, Any]:  
-        logging.info('get_metrics')
-        return {
-            'request_count': self.metrics['request_count'],
-            'error_count': self.metrics['error_count'],
-            'incoming_bytes': self.metrics['incoming_bytes'],
-            'outgoing_bytes': self.metrics['outgoing_bytes'],
-            'average_response_time': (sum(self.metrics['response_times']) / len(self.metrics['response_times']) if self.metrics['response_times'] else 0)
-        }
