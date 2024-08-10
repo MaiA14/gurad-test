@@ -47,7 +47,6 @@ class StreamService:
         logging.info('lifespan')
         self.isAlive = True
         asyncio.create_task(self.worker())
-        await self.stream_start()
         yield
         logging.info('shutting down')
         await self.stop_thread()
@@ -96,15 +95,19 @@ class StreamService:
             enc_secret = self._get_secret(email)
             payload = self._prepare_payload(stream_url, email, enc_secret)
             return await self._send_stream_start_request(stream_start_url, payload)
+        except httpx.ReadTimeout as e:
+            logging.error('Read timeout error: %s', str(e))
+            return JSONResponse(status_code=408, content={"error": "Request timed out"})
         except Exception as e:
             logging.error('Exception during stream start: %s', str(e))
-            return {"error": str(e)}
+            return JSONResponse(status_code=500, content={"error": "Internal Error"})
 
     async def worker_control(self, action: str) -> str:
         logging.info('control_worker: %s', action)
         if action == "start":
             if not self.isAlive:
                 self.isAlive = True
+                self.pokemons_queue = asyncio.Queue()
                 asyncio.create_task(self.worker())
                 return "Worker started"
             return "Worker already running"
@@ -140,8 +143,8 @@ class StreamService:
             raise HTTPException(status_code=403, detail='Invalid signature')
 
     def _publish_data_to_queue(self, data) -> None:
-        logging.info('_publish_data_to_queue: %s', data)
         if self.pokemons_queue is not None:
+            logging.info('_publish_data_to_queue: %s', data)
             asyncio.create_task(self.pokemons_queue.put(data))
 
     def _get_stream_config(self) -> Tuple[str, str, str]:
