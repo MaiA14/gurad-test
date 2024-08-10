@@ -20,5 +20,4 @@ async def control_worker(request: ControlWorkerRequest):
 
 @app.get("/stats")
 async def get_stats():
-    print('stats ')
     return await streamer.get_metrics()

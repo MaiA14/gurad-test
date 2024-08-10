@@ -168,7 +168,7 @@ class StreamService:
             return {"status_code": response.status_code, "response": response.json()}
 
     async def get_metrics(self) -> Dict[str, Any]:  
-        print('get_metrics')
+        logging.info('get_metrics')
         return {
             'request_count': self.metrics['request_count'],
             'error_count': self.metrics['error_count'],
