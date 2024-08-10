@@ -9,7 +9,8 @@
             "match": [
                 "hit_points > 20",
                 "type_two!=word",
-                "special_defense < 80"
+                "special_defense < 80",
+                "legendary==false"
             ]
         }
     ]

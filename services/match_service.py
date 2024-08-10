@@ -27,6 +27,7 @@ class MatchService:
         logging.info('process_matches: %s', data)
 
         matched_rules = MatchService.match_check(data) 
+        print('matched_rules ', matched_rules)
         if matched_rules:
             await MatchService.notify_subscribers(data, matched_rules)
 
@@ -122,8 +123,12 @@ class MatchService:
         logging.info('_parse_condition: %s, %s', condition, operator)
         key, value = condition.split(operator)
         key = key.strip()
-        value = value.strip().strip("'")
+        value = value.strip().strip("'").lower() 
         
         if value.isnumeric():
             value = int(value)
+        elif value in ['true', 'false']:  
+            value = value == 'true'
+        elif value in ['none', 'null']:  
+            value = None
         return key, value
