@@ -8,6 +8,7 @@ A Fast API app that integrate with a stream.
 - Validate specified headers
 - Normalizing data
 - Route data to downstream services based on a configuration file.
+- Stats of stream
 
 ## Running this server 
 
@@ -34,3 +35,12 @@ Reasons:
 
 - Matched rules:
 <img src="https://i.ibb.co/F3jhf6F/Screenshot-2024-08-09-at-21-47-45.png" alt="image" width="600" height="auto">
+
+- Stats:
+<img src="https://i.postimg.cc/hGYwPwvW/Screenshot-2024-08-10-at-23-04-33.png" alt="image" width="600" height="auto">
+
+
+```bash
+GET https://satisfied-berty-mai2-b6a31fff.koyeb.app/stats
+
+```
