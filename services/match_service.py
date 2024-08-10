@@ -20,6 +20,7 @@ class MatchService:
         for rule in rules:
             if MatchService._process_conditions(rule.get('match', []), pokemon):
                 matching_rules.append(rule)
+        logging.info('matching_rules: %s', matching_rules)
         return matching_rules
     
     @staticmethod    
@@ -103,6 +104,11 @@ class MatchService:
     @staticmethod
     def _evaluate_condition(condition: str, pokemon: Dict[str, Any]) -> bool:
         logging.info('_evaluate_condition: %s, %s', condition, pokemon)
+
+        if pokemon is None:
+            logging.info('Pokemon data is None. Condition cannot be evaluated.')
+        return False
+
         operators = {
             '==': MatchService._check_equal,
             '!=': MatchService._check_not_equal,
