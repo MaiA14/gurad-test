@@ -46,8 +46,10 @@ class StreamService:
     async def lifespan(self, app: FastAPI) -> AsyncIterator[None]:
         logging.info('lifespan')
         self.isAlive = True
+        Config.load_stream_config()
         asyncio.create_task(self.worker())
         yield
+        Config.save_rules()
         logging.info('shutting down')
         await self.stop_thread()
 
@@ -91,10 +93,24 @@ class StreamService:
     async def stream_start(self) -> Dict[str, Any]:
         logging.info('stream_start')
         try:
-            stream_url, email, stream_start_url = self._get_stream_config()
+            Config.load_stream_config()
+            
+            start_details = Config.get_stream_config_value('start_details')
+            if not start_details:
+                raise ValueError("Missing start_details in configuration")
+            
+            stream_url = start_details.get('url')
+            email = start_details.get('email')
+            stream_start_url = start_details.get('stream_start_url')
+            
+            if not all([stream_url, email, stream_start_url]):
+                raise ValueError("Required configuration values are missing")
+
             enc_secret = self._get_secret(email)
+            
             payload = self._prepare_payload(stream_url, email, enc_secret)
             return await self._send_stream_start_request(stream_start_url, payload)
+        
         except httpx.ReadTimeout as e:
             logging.error('Read timeout error: %s', str(e))
             return JSONResponse(status_code=408, content={"error": "Request timed out"})
@@ -134,7 +150,12 @@ class StreamService:
         if signature is None:
             raise HTTPException(status_code=400, detail='Missing x-grd-signature header')
 
-        email = Config.get_stream_config_value("email")
+        
+        start_details = Config.get_stream_config_value('start_details')
+        if not start_details:
+            raise ValueError("Missing start_details in configuration")
+        
+        email = start_details.get('email')
         key_base64 = self._get_secret(email)
         key = base64.b64decode(key_base64)
         hmaci = HMAC.new(key, body, digestmod=SHA256).hexdigest()

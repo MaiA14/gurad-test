@@ -1,7 +1,9 @@
 {
-    "url": "https://satisfied-berty-mai2-b6a31fff.koyeb.app/stream",
-    "email": "test@guard.io",
-    "stream_start_url": "https://hiring.external.guardio.dev/be/stream_start",
+    "start_details": {
+        "url": "https://satisfied-berty-mai2-b6a31fff.koyeb.app/stream",
+        "email": "test@guard.io",
+        "stream_start_url": "https://hiring.external.guardio.dev/be/stream_start"
+    },
     "rules": [
         {
             "url": "http://my-special-awesome-pokemon-service.com",
