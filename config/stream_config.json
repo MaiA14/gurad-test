@@ -8,7 +8,8 @@
             "reason": "awesome pokemon",
             "match": [
                 "hit_points > 20",
-                "type_two!=word"
+                "type_two!=word",
+                "special_defense < 80"
             ]
         }
     ]
