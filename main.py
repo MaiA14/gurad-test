@@ -16,5 +16,9 @@ async def stream_start():
 @app.post("/worker_control")
 async def control_worker(request: ControlWorkerRequest):
     action = request.action
-    await streamer.worker_control(action)
-    return {"message": f"Worker action performed: {action}"}
+    return {"message": await streamer.worker_control(action)}
+
+@app.get("/stats")
+async def get_stats():
+    print('stats ')
+    return await streamer.get_metrics()

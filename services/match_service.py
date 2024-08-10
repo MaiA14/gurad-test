@@ -23,15 +23,15 @@ class MatchService:
         return matching_rules
     
     @staticmethod    
-    def process_matches(data: dict) -> None:
+    async def process_matches(data: dict) -> None:
         logging.info('process_matches: %s', data)
 
-        matched_rules = MatchService.match_check(data)
+        matched_rules = MatchService.match_check(data) 
         if matched_rules:
-            MatchService.notify_subscribers(data, matched_rules)
+            await MatchService.notify_subscribers(data, matched_rules)
 
     @staticmethod             
-    def notify_subscribers(pokemon_message: dict, matched_rules: list) -> None:
+    async def notify_subscribers(pokemon_message: dict, matched_rules: list) -> None:  
         logging.info('notify_subscribers: %s, %s', pokemon_message, matched_rules)
         
         pokemon_info = pokemon_message.get('pokemon_data', {})
@@ -54,7 +54,7 @@ class MatchService:
                     headers.update(headers_from_message)
                          
                     logging.info('Attempting to forward request to %s with headers %s and payload %s', subscriber_url, headers, payload)
-                    response = client.post(subscriber_url, json=payload, headers=headers)
+                    response = await client.post(subscriber_url, json=payload, headers=headers)
                         
                     if response.status_code == 200:
                         logging.info('Notification sent successfully to %s', subscriber_url)
