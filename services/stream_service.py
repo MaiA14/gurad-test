@@ -121,6 +121,7 @@ class StreamService:
             logging.error('Exception during stream start: %s', str(e))
             return JSONResponse(status_code=500, content={"error": "Internal Error"})
 
+    # send control commands to the worker - start / stop
     async def worker_control(self, action: str) -> str:
         logging.info('control_worker: %s', action)
         if action == "start":
@@ -139,14 +140,17 @@ class StreamService:
         else:
             raise ValueError("Invalid action. Must be 'start' or 'stop'.")
 
+    # retrieve the current metrics of stream
     async def get_metrics(self) -> Dict[str, Any]:
         logging.info('get_metrics')
         return MetricService.get_metrics() 
 
+    # decode supplied secret
     def _get_secret(self, key: str) -> str:
         logging.info('_get_secret')
         return base64.b64encode(key.encode('utf-8')).decode('utf-8')
 
+     # validate headers according hmac
     def _validate_signature(self, headers: dict, body: bytes) -> None:
         logging.info('_validate_signature')
         signature = headers.get('x-grd-signature')
@@ -166,11 +170,13 @@ class StreamService:
         if signature != hmaci:
             raise HTTPException(status_code=403, detail='Invalid signature')
 
+    # publish data to queue if queue is not empty
     def _publish_data_to_queue(self, data) -> None:
         if self.pokemons_queue is not None:
             logging.info('_publish_data_to_queue: %s', data)
             asyncio.create_task(self.pokemons_queue.put(data))
 
+     # preapare payload of stream start
     def _prepare_payload(self, stream_url: str, email: str, enc_secret: str) -> Dict[str, str]:
         logging.info('_prepare_payload')
         return {
@@ -179,6 +185,7 @@ class StreamService:
             "enc_secret": enc_secret
         }
 
+     # post stream start request
     async def _send_stream_start_request(self, stream_start_url: str, payload: dict) -> Dict[str, Any]:
         logging.info('_send_stream_start_request: %s, %s', stream_start_url, payload)
         async with httpx.AsyncClient() as client:
