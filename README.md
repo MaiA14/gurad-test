@@ -29,7 +29,7 @@ Reasons:
 
 
 ## Running this server locally
-Create virtul env:
+Create virtual env:
 ```bash
 python3.8 -m venv venv
 
