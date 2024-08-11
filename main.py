@@ -34,7 +34,6 @@ async def control_worker(request: ControlWorkerRequest):
 async def get_rules():
     return Config.get_stream_config_value("rules")
 
-
 @app.post("/update_rules", summary="Update Rules", description="Update the rules from the configuration.")
 async def update_rules(request: Request):
     body = await request.body()
