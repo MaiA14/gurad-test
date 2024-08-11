@@ -30,7 +30,7 @@ Reasons:
 
 ## Running this server locally
 
-install requirements:
+Install requirements:
 ```bash
 pip install -r requirements.txt
 
