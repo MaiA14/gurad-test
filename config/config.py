@@ -1,11 +1,15 @@
 import os
 import json
+import logging
+
+logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class Config:
     _conf = {}
     
     @staticmethod
     def load_stream_config():
+        logging.info('load_stream_config')
         config_path = os.getenv("STREAM_CONFIG_PATH")
         if not config_path:
             raise ValueError("Environment variable STREAM_CONFIG_PATH not set")
@@ -14,10 +18,12 @@ class Config:
             
     @staticmethod
     def get_stream_config_value(key):
+        logging.info('get_stream_config_value: %s', key)
         return Config._conf.get(key)
 
     @staticmethod
     def update_rules(rules) -> None:
+        logging.info('update_rules: %s', rules)
         if 'rules' in Config._conf:
             Config._conf['rules'] = rules
         else:
@@ -25,6 +31,7 @@ class Config:
 
     @staticmethod
     def save_rules() -> None:
+        logging.info('save_rules:')
         config_path = os.getenv("STREAM_CONFIG_PATH")
         if not config_path:
             raise ValueError("Environment variable STREAM_CONFIG_PATH not set")

@@ -44,7 +44,7 @@ class StreamService:
                 logging.error('Worker exception: %s', str(e))
         logging.info('Worker job done')
 
-    # initallize config file when server is app & start tasks. Finish tasks when app is down
+    # initallize config file when server is up & start tasks. Finish tasks when app is down
     @asynccontextmanager
     async def lifespan(self, app: FastAPI) -> AsyncIterator[None]:
         logging.info('lifespan')
@@ -97,9 +97,7 @@ class StreamService:
     # trigger the stream
     async def stream_start(self) -> Dict[str, Any]:
         logging.info('stream_start')
-        try:
-            Config.load_stream_config()
-            
+        try:      
             start_details = Config.get_stream_config_value('start_details')
             if not start_details:
                 raise ValueError("Missing start_details in configuration")
