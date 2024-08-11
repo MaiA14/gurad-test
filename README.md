@@ -3,7 +3,7 @@ A Python Fast API app that integrate with a stream.
 
 ## Features
 - HTTPS (Bonus)
-- Handle data according rules config (flexible)
+- Handle data according rules config
 - Support both partial & complete objects of supplied proto
 - Validate specified headers
 - Normalizing data
