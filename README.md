@@ -1,5 +1,5 @@
 # Streamer
-A Fast API app that integrate with a stream.
+A Python Fast API app that integrate with a stream.
 
 ## Features
 - HTTPS (Bonus)
