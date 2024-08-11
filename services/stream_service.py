@@ -44,7 +44,7 @@ class StreamService:
                 logging.error('Worker exception: %s', str(e))
         logging.info('Worker job done')
 
-    # initallize config file when server is up & start tasks. Finish tasks when app is down
+    # initallize config file when server is up & start tasks. Finish tasks when server is down
     @asynccontextmanager
     async def lifespan(self, app: FastAPI) -> AsyncIterator[None]:
         logging.info('lifespan')
