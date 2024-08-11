@@ -20,12 +20,14 @@ class StreamService:
         self.pokemons_queue = asyncio.Queue()
         self.isAlive = False
 
+    # cleaning tasks
     async def stop_thread(self) -> None:
         logging.info('stop_thread')
         self.isAlive = False
         await self.pokemons_queue.join()
         logging.info('Thread stopped and queue joined')
 
+    # get Pokemon from queue, checking for matching rules in case thread is alive, otherwise finish tasks
     async def worker(self) -> None:
         logging.info('worker started')
         while self.isAlive:
@@ -42,6 +44,7 @@ class StreamService:
                 logging.error('Worker exception: %s', str(e))
         logging.info('Worker job done')
 
+    # initallize config file when server is app & start tasks. Finish tasks when app is down
     @asynccontextmanager
     async def lifespan(self, app: FastAPI) -> AsyncIterator[None]:
         logging.info('lifespan')
@@ -53,6 +56,7 @@ class StreamService:
         logging.info('shutting down')
         await self.stop_thread()
 
+    # publish data to queue after validations and proccessing
     async def stream(self, request: Request) -> JSONResponse:
         logging.info('stream: %s', request)
         MetricService.increment_request_count()  
@@ -90,6 +94,7 @@ class StreamService:
             end_time = asyncio.get_event_loop().time()
             MetricService.add_response_time(end_time - start_time) 
 
+    # trigger the stream
     async def stream_start(self) -> Dict[str, Any]:
         logging.info('stream_start')
         try:
