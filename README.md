@@ -30,11 +30,12 @@ Reasons:
 
 ## Running this server locally
 
+install requirements:
 ```bash
 pip install -r requirements.txt
 
 ```
-
+Run the server:
 ```bash
 python3.8 -m uvicorn main:app --reload
 
