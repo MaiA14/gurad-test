@@ -2,13 +2,15 @@
 A Fast API app that integrate with a stream.
 
 ## Features
-- HTTPS 
+- HTTPS (Bonus)
 - Handle data according rules config (flexible)
 - Support both partial & complete objects of supplied proto
 - Validate specified headers
 - Normalizing data
 - Route data to downstream services based on a configuration file.
 - Stats of stream
+- Get current rules
+- Update rules
 
 ## Running this server 
 
@@ -36,11 +38,23 @@ Reasons:
 - Matched rules:
 <img src="https://i.ibb.co/F3jhf6F/Screenshot-2024-08-09-at-21-47-45.png" alt="image" width="600" height="auto">
 
-- Stats:
+- Stats (Bonus)
 <img src="https://i.postimg.cc/hGYwPwvW/Screenshot-2024-08-10-at-23-04-33.png" alt="image" width="600" height="auto">
 
 
 ```bash
 GET https://satisfied-berty-mai2-b6a31fff.koyeb.app/stats
+
+```
+
+
+```bash
+GET https://satisfied-berty-mai2-b6a31fff.koyeb.app/get_rules
+
+```
+
+
+```bash
+GET https://satisfied-berty-mai2-b6a31fff.koyeb.app/update_rules
 
 ```
