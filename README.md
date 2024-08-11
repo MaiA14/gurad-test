@@ -23,12 +23,17 @@ POST https://satisfied-berty-mai2-b6a31fff.koyeb.app/stream_start
 Reasons: 
 <br>
 
-- Accessibility - this POST request won't work with a private email, because the hiring url supports the email you supplied. Private email gets status code 401 - Unauthorized.
+- Accessibility - this POST request won't work with a private email, because the hiring url supports the email you supplied. 
 
 - Security - configuration files or environment variables can be protected with access controls and encryption, ensuring that only authorized processes or personnel can access the key.
 
 
 ## Running this server locally
+
+```bash
+pip install -r requirements.txt
+
+```
 
 ```bash
 python3.8 -m uvicorn main:app --reload
