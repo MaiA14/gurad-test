@@ -8,7 +8,7 @@ A Fast API app that integrate with a stream.
 - Validate specified headers
 - Normalizing data
 - Route data to downstream services based on a configuration file.
-- Stats of stream
+- Stats of stream (Bonus)
 - Get current rules
 - Update rules
 
