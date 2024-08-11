@@ -21,13 +21,13 @@ class StreamService:
         self.isAlive = False
 
     # cleaning tasks
-    async def stop_thread(self) -> None:
-        logging.info('stop_thread')
+    async def stop_worker(self) -> None:
+        logging.info('stop_worker')
         self.isAlive = False
         await self.pokemons_queue.join()
-        logging.info('Thread stopped and queue joined')
+        logging.info('Worker stopped and queue joined')
 
-    # get Pokemon from queue, checking for matching rules in case thread is alive, otherwise finish tasks
+    # get Pokemon from queue, checking for matching rules in  worker should running, otherwise finish tasks
     async def worker(self) -> None:
         logging.info('worker started')
         while self.isAlive:
@@ -54,7 +54,7 @@ class StreamService:
         yield
         Config.save_rules()
         logging.info('shutting down')
-        await self.stop_thread()
+        await self.stop_worker()
 
     # publish data to queue after validations and proccessing
     async def stream(self, request: Request) -> JSONResponse:
@@ -134,7 +134,7 @@ class StreamService:
         elif action == "stop":
             if self.isAlive:
                 self.isAlive = False
-                await self.stop_thread()
+                await self.stop_worker()
                 return "Worker stopped"
             return "Worker is not running"
         else:
