@@ -35,7 +35,7 @@ python3.8 -m venv venv
 
 ```
 
-Activate virtul env:
+Activate virtual env:
 ```bash
 . venv/bin/activate
 
