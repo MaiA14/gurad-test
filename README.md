@@ -39,22 +39,26 @@ Reasons:
 <img src="https://i.ibb.co/F3jhf6F/Screenshot-2024-08-09-at-21-47-45.png" alt="image" width="600" height="auto">
 
 - Stats (Bonus)
-<img src="https://i.postimg.cc/hGYwPwvW/Screenshot-2024-08-10-at-23-04-33.png" alt="image" width="600" height="auto">
-
-
 ```bash
 GET https://satisfied-berty-mai2-b6a31fff.koyeb.app/stats
 
 ```
+
+<img src="https://i.postimg.cc/hGYwPwvW/Screenshot-2024-08-10-at-23-04-33.png" alt="image" width="600" height="auto">
+
 
 
 ```bash
 GET https://satisfied-berty-mai2-b6a31fff.koyeb.app/get_rules
 
 ```
+<img src="https://i.ibb.co/qRnXR1R/Screenshot-2024-08-11-at-3-22-29.png" alt="image" width="600" height="auto">
 
 
 ```bash
-GET https://satisfied-berty-mai2-b6a31fff.koyeb.app/update_rules
+POST https://satisfied-berty-mai2-b6a31fff.koyeb.app/update_rules
 
 ```
+
+<img src="https://i.ibb.co/dcCs9g2/Screenshot-2024-08-11-at-3-25-04.png" alt="image" width="600" height="auto">
+
