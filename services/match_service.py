@@ -27,7 +27,8 @@ class MatchService:
         logging.info('process_matches: %s', data)
 
         matched_rules = MatchService.match_check(data) 
-        print('matched_rules ', matched_rules)
+        logging.info('matched_rules: %s', matched_rules)
+        
         if matched_rules:
             await MatchService.notify_subscribers(data, matched_rules)
 
