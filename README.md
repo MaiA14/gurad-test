@@ -45,7 +45,7 @@ python3.8 -m uvicorn main:app --reload
 <img src="https://i.ibb.co/sJLPmxc/Screenshot-2024-08-09-at-21-44-25.png" alt="image" width="600" height="auto">
 
 - Matched rules:
-<img src="https://i.ibb.co/F3jhf6F/Screenshot-2024-08-09-at-21-47-45.png" alt="image" width="600" height="auto">
+<img src="https://i.ibb.co/xhBjjwg/Screenshot-2024-08-11-at-3-36-12.png" alt="image" width="600" height="auto">
 
 - Stats (Bonus) - Retrieve the current metrics
 ```bash
