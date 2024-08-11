@@ -47,7 +47,7 @@ python3.8 -m uvicorn main:app --reload
 - Matched rules:
 <img src="https://i.ibb.co/F3jhf6F/Screenshot-2024-08-09-at-21-47-45.png" alt="image" width="600" height="auto">
 
-- Stats (Bonus)
+- Stats (Bonus) - Retrieve the current metrics
 ```bash
 GET https://satisfied-berty-mai2-b6a31fff.koyeb.app/stats
 
@@ -56,14 +56,16 @@ GET https://satisfied-berty-mai2-b6a31fff.koyeb.app/stats
 <img src="https://i.postimg.cc/hGYwPwvW/Screenshot-2024-08-10-at-23-04-33.png" alt="image" width="600" height="auto">
 
 
-
+- Rules get - Retrieve the current rules from the configuration
 ```bash
 GET https://satisfied-berty-mai2-b6a31fff.koyeb.app/get_rules
 
 ```
+
 <img src="https://i.ibb.co/qRnXR1R/Screenshot-2024-08-11-at-3-22-29.png" alt="image" width="600" height="auto">
 
 
+- Update rules - Update the rules from the configuration.
 ```bash
 POST https://satisfied-berty-mai2-b6a31fff.koyeb.app/update_rules
 
