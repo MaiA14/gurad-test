@@ -27,6 +27,15 @@ Reasons:
 
 - Security - configuration files or environment variables can be protected with access controls and encryption, ensuring that only authorized processes or personnel can access the key.
 
+
+## Running this server locally
+
+```bash
+python3.8 -m uvicorn main:app --reload
+
+```
+
+
 ## Data:
 
 - Original data from stream: 
