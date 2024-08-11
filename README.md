@@ -29,6 +29,17 @@ Reasons:
 
 
 ## Running this server locally
+Create virtul env:
+```bash
+python3.8 -m venv venv
+
+```
+
+Activate virtul env:
+```bash
+. venv/bin/activate
+
+```
 
 Install requirements:
 ```bash
