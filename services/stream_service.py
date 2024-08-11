@@ -171,13 +171,6 @@ class StreamService:
             logging.info('_publish_data_to_queue: %s', data)
             asyncio.create_task(self.pokemons_queue.put(data))
 
-    def _get_stream_config(self) -> Tuple[str, str, str]:
-        logging.info('_get_stream_config')
-        stream_url = Config.get_stream_config_value("url")
-        email = Config.get_stream_config_value("email")
-        stream_start_url = Config.get_stream_config_value("stream_start_url")
-        return stream_url, email, stream_start_url
-
     def _prepare_payload(self, stream_url: str, email: str, enc_secret: str) -> Dict[str, str]:
         logging.info('_prepare_payload')
         return {
