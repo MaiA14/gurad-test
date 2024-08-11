@@ -5,7 +5,6 @@ from dtos.control_worker import ControlWorkerRequest
 from config.config import Config
 import json
 
-
 streamer = StreamService()
 app = FastAPI(
     lifespan=streamer.lifespan, 
